@@ -1,0 +1,40 @@
+## Ignore Visual Studio files
+.vs/
+
+## Ignore common build and output folders
+[Dd]ebug/
+[Rr]elease/
+[Bb]in/
+[Oo]bj/
+
+## Ignore .NET Core/5+/6+ specific folders
+publish/
+**/[Bb]in/
+**/[Oo]bj/
+
+## Ignore solution and project user-specific files
+*.suo
+*.user
+*.pdb
+*.pidb
+*.vssscc
+*.vspscc
+*.vspcc
+*.vssscc
+
+## Ignore test results
+TestResults/
+.trx
+
+## Ignore Nuget packages
+packages/
+
+## Ignore Rider IDE files
+.idea/
+
+## Ignore various log and temp files
+*.log
+*.tmp
+*.temp
+*.[Cc]ache
+*.userprefs
