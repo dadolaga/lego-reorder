@@ -1,7 +1,11 @@
-﻿namespace application {
+﻿using Serilog;
+
+namespace application {
     internal class Program {
         static void Main(string[] args) {
-            Console.WriteLine("Hello, World!");
+            Logger.Init();
+
+            Log.Information("Lego reorder application starting...");
         }
     }
 }
