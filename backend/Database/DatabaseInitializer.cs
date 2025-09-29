@@ -19,5 +19,19 @@ namespace Database {
 
             LegoDbContext.ConnectionString = json.ConnectionString;
         }
+
+        public static void Init() {
+            MyLogger.Log.Information("Initalize DB");
+
+            using (var db = new LegoDbContext()) {
+                try {
+                    db.Database.EnsureCreated();
+
+                    MyLogger.Log.Information("Database initalize correctly");
+                } catch (Exception ex) {
+                    MyLogger.Log.Error($"Database creation trows an error: {ex.Message}");
+                }
+            }
+        }
     }
 }
