@@ -11,7 +11,8 @@ namespace Database.Model {
         public string LegoId { get; set; }
         public string ApiId { get; set; }
         public string? Name { get; set; }
-        public int ColorId { get; set; }
+        public string? ImageUrl { get; set; }
+        public ushort ColorId { get; set; }
         public LegoColor Color { get; set; }
         public ICollection<LegoSetPiece> Sets { get; set; }
     }
