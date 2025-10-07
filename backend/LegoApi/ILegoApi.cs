@@ -8,5 +8,6 @@ using System.Threading.Tasks;
 namespace LegoApi {
     public interface ILegoApi {
         public Task<IEnumerable<LegoSet>> SearchLegoSetFromCode(string code);
+        public Task<IEnumerable<LegoPiece>> GetAllPieceFromSet(string apiId);
     }
 }
