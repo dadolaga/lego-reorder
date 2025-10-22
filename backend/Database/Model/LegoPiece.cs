@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Database.Model {
-    internal class LegoPiece {
+    public class LegoPiece {
         public int Id { get; set; }
         public string LegoId { get; set; }
         public string ApiId { get; set; }

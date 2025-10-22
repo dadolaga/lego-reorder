@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Database {
-    internal class LegoDbContext : DbContext {
+    public class LegoDbContext : DbContext {
         internal static string ConnectionString { set; private get; }
 
         public DbSet<LegoSet> Sets { get; set; }
