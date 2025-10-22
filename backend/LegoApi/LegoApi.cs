@@ -3,6 +3,9 @@ using Logic.Models;
 using System.Net.Http.Json;
 using System.Text.RegularExpressions;
 
+using API = LegoApi.Models;
+using IN = Logic.Models;
+
 namespace LegoApi {
     public class LegoApi : ILegoApi {
         public string token_;
@@ -11,7 +14,7 @@ namespace LegoApi {
             token_ = token;
         }
 
-        public Task<IEnumerable<Logic.Models.LegoSet>> SearchLegoSetFromCode(string code) {
+        public Task<IEnumerable<IN.LegoSet>> SearchLegoSetFromCode(string code) {
             return Task.Run(async () => {
                 using (HttpClient client = new HttpClient()) {
                     try {
@@ -26,25 +29,32 @@ namespace LegoApi {
                             throw new NullReferenceException("Json parsing failing");
                         }
 
-                        return content.Results.Select(legoSet => new Logic.Models.LegoSet { ApiId = legoSet.SetNum, Name = legoSet.Name, ImageUrl = legoSet.SetImgUrl, LegoCode = legoSet.SetNum.Split("-")[0] });
+                        return content.Results
+                            .Select(legoSet => new IN.LegoSet {
+                                ApiId = legoSet.SetNum,
+                                Name = legoSet.Name,
+                                Year = legoSet.Year,
+                                ImageUrl = legoSet.SetImgUrl,
+                                LegoCode = legoSet.SetNum.Split("-")[0]
+                            });
                     } catch (HttpRequestException e) {
                         MyLogger.Log.Error($"API SearchSetByCode raise an error: {e.Message}");
                     } catch (NullReferenceException e) {
                         MyLogger.Log.Error($"API SearchSetByCode raise an error: {e.Message}");
                     }
 
-                    return new LinkedList<Logic.Models.LegoSet>();
+                    return new LinkedList<IN.LegoSet>();
                 }
             });
 
         }
 
-        public Task<IEnumerable<Logic.Models.LegoPiece>> GetAllPieceFromSet(string apiId) {
+        public Task<IEnumerable<IN.LegoPiece>> GetAllPieceFromSet(string apiId) {
             return Task.Run(async () => {
                 using (HttpClient client = new HttpClient()) {
                     try {
-                        BaseResponse<Models.LegoPart>? content = null;
-                        List<Models.LegoPart> parts = new List<Models.LegoPart>();
+                        BaseResponse<API.LegoPart>? content = null;
+                        List<Models.LegoPart> parts = new List<API.LegoPart>();
 
                         do {
                             var request = new HttpRequestMessage(HttpMethod.Get, content == null ? $"https://rebrickable.com/api/v3/lego/sets/{apiId}/parts/" : content.Next);
@@ -52,7 +62,7 @@ namespace LegoApi {
 
                             var response = await client.SendAsync(request);
                             response.EnsureSuccessStatusCode();
-                            content = await response.Content.ReadFromJsonAsync<BaseResponse<Models.LegoPart>>();
+                            content = await response.Content.ReadFromJsonAsync<BaseResponse<API.LegoPart>>();
 
                             if (content == null || content.Results == null) {
                                 throw new NullReferenceException("Json parsing failing");
@@ -67,28 +77,29 @@ namespace LegoApi {
                         }
 
                         return parts.Select(p => {
-                            var piece = new Logic.Models.LegoPiece { 
-                                ApiId = $"{p.Id}", 
-                                Name = p.Part.Name, 
-                                ImageUrl = p.Part.PartImgUrl, 
-                                Color = new Logic.Models.LegoColor {
-                                    ApiId = $"{p.Color.Id}", 
+                            var piece = new IN.LegoPiece {
+                                ApiId = $"{p.Id}",
+                                Name = p.Part.Name,
+                                ImageUrl = p.Part.PartImgUrl,
+                                Color = new IN.LegoColor {
+                                    ApiId = $"{p.Color.Id}",
                                     Name = p.Color.Name,
                                     Trasparent = p.Color.IsTrans,
                                     Value = Convert.ToInt32(p.Color.Rgb, 16)
-                                }};
+                                }
+                            };
 
                             var match = Regex.Match(p.Part.PartImgUrl, @"elements/([\d]+)", RegexOptions.IgnoreCase);
-                            if(match.Success) {
+                            if (match.Success) {
                                 piece.LegoId = match.Groups[1].Value;
-                            } else if(p.ElementId != null) {
+                            } else if (p.ElementId != null) {
                                 piece.LegoId = p.ElementId;
                             } else {
                                 piece.LegoId = p.Part.ExternalIds.LEGO?[0];
                             }
-                            
+
                             return piece;
-                            });
+                        });
 
                     } catch (HttpRequestException e) {
                         MyLogger.Log.Error($"API SearchSetByCode raise an error: {e.Message}");
@@ -96,7 +107,7 @@ namespace LegoApi {
                         MyLogger.Log.Error($"API SearchSetByCode raise an error: {e.Message}");
                     }
 
-                    return new LinkedList<Logic.Models.LegoPiece>().AsEnumerable();
+                    return new LinkedList<IN.LegoPiece>().AsEnumerable();
                 }
             });
         }

@@ -1,4 +1,6 @@
 
+using Database;
+using LegoApi;
 using MyLogger;
 using Serilog;
 
@@ -7,21 +9,39 @@ namespace WebApplication {
         public static void Main(string[] args) {
             MyLogger.Log.Init();
 
-            var builder = Microsoft.AspNetCore.Builder.WebApplication.CreateBuilder(args);
+            InitializeDatabase();
 
-            // Add services to the container.
+            LegoInitializer.Init();
+
+            InitializeApi();
+        }
+
+        private static void InitializeDatabase() {
+            DatabaseInitializer.ReadFromJson();
+
+            DatabaseInitializer.Init();
+        }
+
+        private static void InitializeApi() {
+            var builder = Microsoft.AspNetCore.Builder.WebApplication.CreateBuilder();
 
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddCors(options => {
+                options.AddPolicy(name: "AllowSpecificOrigin",
+                        policy => {
+                            policy.WithOrigins("http://localhost:3000")
+                            .AllowAnyHeader()
+                            .AllowAnyMethod();
+                        });
+            });
 
             builder.Logging.ClearProviders();
             builder.Logging.AddProvider(new LoggerProvider());
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment()) {
                 app.UseSwagger();
                 app.UseSwaggerUI();
@@ -29,8 +49,9 @@ namespace WebApplication {
 
             app.UseAuthorization();
 
-
             app.MapControllers();
+
+            app.UseCors("AllowSpecificOrigin");
 
             app.Run();
         }
