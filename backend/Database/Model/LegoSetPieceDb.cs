@@ -5,11 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Database.Model {
-    public class LegoSetPiece {
+    public class LegoSetPieceDb {
         public int SetId { get; set; }
-        public LegoSet Set { get; set; }
+        public LegoSetDb Set { get; set; }
         public int PieceId { get; set; }
-        public LegoPiece Piece { get; set; }
+        public LegoPieceDb Piece { get; set; }
         public int Quantity { get; set; }
         public int QuantityHave { get; set; }
     }

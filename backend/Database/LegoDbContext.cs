@@ -10,10 +10,10 @@ namespace Database {
     public class LegoDbContext : DbContext {
         internal static string ConnectionString { set; private get; }
 
-        public DbSet<LegoSet> Sets { get; set; }
-        public DbSet<LegoPiece> Pieces { get; set; }
-        public DbSet<LegoSetPiece> SetPieces { get; set; }
-        public DbSet<LegoColor> Colors { get; set; }
+        public DbSet<LegoSetDb> Sets { get; set; }
+        public DbSet<LegoPieceDb> Pieces { get; set; }
+        public DbSet<LegoSetPieceDb> SetPieces { get; set; }
+        public DbSet<LegoColorDb> Colors { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
             try {
@@ -27,48 +27,48 @@ namespace Database {
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             /// Primary keys
 
-            modelBuilder.Entity<LegoSet>()
+            modelBuilder.Entity<LegoSetDb>()
                 .HasKey(s => s.Id);
 
-            modelBuilder.Entity<LegoPiece>()
+            modelBuilder.Entity<LegoPieceDb>()
                 .HasKey(p => p.Id);
 
-            modelBuilder.Entity<LegoSetPiece>()
+            modelBuilder.Entity<LegoSetPieceDb>()
                 .HasKey(sp => new { sp.SetId, sp.PieceId });
 
-            modelBuilder.Entity<LegoColor>()
+            modelBuilder.Entity<LegoColorDb>()
                 .HasKey(c => c.Id);
 
 
             /// Index
-            modelBuilder.Entity<LegoSet>()
+            modelBuilder.Entity<LegoSetDb>()
                 .HasIndex(s => s.LegoCode)
                 .IsUnique();
 
-            modelBuilder.Entity<LegoPiece>()
+            modelBuilder.Entity<LegoPieceDb>()
                 .HasIndex(p => p.Id)
                 .IsUnique();
 
-            modelBuilder.Entity<LegoSetPiece>()
+            modelBuilder.Entity<LegoSetPieceDb>()
                 .HasIndex(sp => new { sp.SetId, sp.PieceId })
                 .IsUnique();
 
-            modelBuilder.Entity<LegoColor>()
+            modelBuilder.Entity<LegoColorDb>()
                 .HasIndex(c => c.Id)
                 .IsUnique();
 
             /// Foreign key
-            modelBuilder.Entity<LegoSetPiece>()
+            modelBuilder.Entity<LegoSetPieceDb>()
                 .HasOne(sp => sp.Set)
                 .WithMany(s => s.Pieces)
                 .HasForeignKey(sp => sp.SetId);
 
-            modelBuilder.Entity<LegoSetPiece>()
+            modelBuilder.Entity<LegoSetPieceDb>()
                 .HasOne(sp => sp.Piece)
                 .WithMany(s => s.Sets)
                 .HasForeignKey(sp => sp.PieceId);
 
-            modelBuilder.Entity<LegoPiece>()
+            modelBuilder.Entity<LegoPieceDb>()
                 .HasOne(p => p.Color)
                 .WithMany(c => c.Pieces)
                 .HasForeignKey(p => p.ColorId);
