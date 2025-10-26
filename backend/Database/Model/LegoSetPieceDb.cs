@@ -10,7 +10,8 @@ namespace Database.Model {
         public LegoSetDb Set { get; set; }
         public int PieceId { get; set; }
         public LegoPieceDb Piece { get; set; }
-        public int Quantity { get; set; }
-        public int QuantityHave { get; set; }
+        public uint Quantity { get; set; }
+        public uint SpareQuantity { get; set; }
+        public uint QuantityHave { get; set; }
     }
 }
