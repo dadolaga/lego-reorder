@@ -45,8 +45,16 @@ namespace Database {
                 .HasIndex(s => s.LegoCode)
                 .IsUnique();
 
+            modelBuilder.Entity<LegoSetDb>()
+                .HasIndex(s => s.ApiId)
+                .IsUnique();
+
             modelBuilder.Entity<LegoPieceDb>()
-                .HasIndex(p => p.Id)
+                .HasIndex(p => p.LegoId)
+                .IsUnique();
+
+            modelBuilder.Entity<LegoPieceDb>()
+                .HasIndex(p => p.ApiId)
                 .IsUnique();
 
             modelBuilder.Entity<LegoSetPieceDb>()
@@ -54,7 +62,7 @@ namespace Database {
                 .IsUnique();
 
             modelBuilder.Entity<LegoColorDb>()
-                .HasIndex(c => c.Id)
+                .HasIndex(c => c.ApiId)
                 .IsUnique();
 
             /// Foreign key
