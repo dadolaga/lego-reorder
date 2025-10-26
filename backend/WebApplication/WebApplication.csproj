@@ -15,6 +15,7 @@
     <ProjectReference Include="..\Database\Database.csproj" />
     <ProjectReference Include="..\LegoApi\LegoApi.csproj" />
     <ProjectReference Include="..\Logger\MyLogger.csproj" />
+    <ProjectReference Include="..\Logic\Logic.csproj" />
   </ItemGroup>
 
 </Project>
