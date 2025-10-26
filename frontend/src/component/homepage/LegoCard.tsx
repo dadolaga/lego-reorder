@@ -1,38 +1,31 @@
+import { LegoSet } from "@/utilities/type";
 import { Button, Card, CardActions, CardContent, CardMedia, Typography } from "@mui/material";
 
 export interface IButtonList {
     name: string,
-    onClick: ( id: string | number) => () => void,
+    onClick: ( set: LegoSet) => () => void,
 }
 
 interface IProps {
-    id: string | number,
-    imageUrl: string,
-    title: string,
-    years?: number,
-    pieces?: number,
+    legoSet: LegoSet,
     buttonList?: IButtonList[],
 }
 
 export default function LegoCard({
-    id,
-    imageUrl,
-    title,
-    years,
-    pieces,
+    legoSet,
     buttonList = []
 } : IProps) {
     return (
         <Card>
-            <CardMedia sx={{ height: 200 }} image={imageUrl} />
+            <CardMedia sx={{ height: 200 }} image={legoSet.imageUrl} />
             <CardContent>
-                <Typography variant="h5" textOverflow="ellipsis" whiteSpace="nowrap" overflow="hidden">{title}</Typography>
-                <Typography variant="body2">Years: {years || "???"}</Typography>
-                <Typography variant="body2">Pieces: {pieces || "???"}</Typography>
+                <Typography variant="h5" textOverflow="ellipsis" whiteSpace="nowrap" overflow="hidden">{legoSet.name}</Typography>
+                <Typography variant="body2">Years: {legoSet.year || "???"}</Typography>
+                <Typography variant="body2">Pieces: {"???"}</Typography>
             </CardContent>
             <CardActions sx={{justifyContent: "end"}}>
                 {buttonList.map(button => (
-                    <Button key={button.name} onClick={button.onClick(id)}>{button.name}</Button>
+                    <Button key={button.name} onClick={button.onClick(legoSet)}>{button.name}</Button>
                 ))}
             </CardActions>
         </Card>

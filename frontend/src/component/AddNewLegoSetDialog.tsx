@@ -23,11 +23,7 @@ const LegoSetGrid = memo(({ sets, buttonList }: ILegoSetGridProps) => {
             {sets.map(set => (
                 <Grid key={set.apiId} size={6}>
                     <LegoCard
-                        id={set.apiId}
-                        imageUrl={set.imageUrl}
-                        title={set.name}
-                        years={set.year}
-                        pieces={undefined}
+                        legoSet={set}
                         buttonList={buttonList}
                     />
                 </Grid>
@@ -53,8 +49,8 @@ export default function AddNewLegoSetDialog({
 
     const [buttonList,] = useState<IButtonList[]>([{
         name: "Add",
-        onClick: (id: string | number) => () => {
-            const set = legoSetRef.current.find(set => set.apiId === id);
+        onClick: (legoSet: LegoSet) => () => {
+            const set = legoSetRef.current.find(set => set.apiId === legoSet.apiId);
 
             setLoading(true);
             setLoadingMessage("Aggiungi lego set al database");
