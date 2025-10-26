@@ -91,9 +91,12 @@ namespace LegoApi {
                                 }
                             };
 
-                            var match = Regex.Match(p.Part.PartImgUrl, @"elements/([\d]+)", RegexOptions.IgnoreCase);
-                            if (match.Success) {
-                                piece.LegoId = match.Groups[1].Value;
+                            var matchOriginal = Regex.Match(p.Part.PartImgUrl, @"elements/([\d]+)", RegexOptions.IgnoreCase);
+                            var matchSecondary = Regex.Match(p.Part.PartImgUrl, @"ldraw/[\d]+/([\d]+)", RegexOptions.IgnoreCase);
+                            if (matchOriginal.Success) {
+                                piece.LegoId = matchOriginal.Groups[1].Value;
+                            } else if (matchSecondary.Success) {
+                                piece.LegoId = matchSecondary.Groups[1].Value;
                             } else if (p.ElementId != null) {
                                 piece.LegoId = p.ElementId;
                             } else {
