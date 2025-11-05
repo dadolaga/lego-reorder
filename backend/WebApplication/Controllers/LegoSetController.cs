@@ -1,4 +1,5 @@
 using Database;
+using Database.Model;
 using Logic.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +12,7 @@ namespace WebApplication.Controllers {
     [Route("[controller]")]
     public class LegoSetController : BaseController {
 
-        [HttpGet(Name = "getMyLegoSet")]
+        [HttpGet]
         public async Task<IActionResult> GetMy() {
             using var database = new LegoDbContext();
 
@@ -27,7 +28,7 @@ namespace WebApplication.Controllers {
             return CreateSuccessResponse(legoSet.AsEnumerable());
         }
 
-        [HttpPost(Name = "addLegoSet")]
+        [HttpPost]
         public async Task<IActionResult> AddNewLegoSet([FromBody] LegoSet legoSet) {
             using var database = new LegoDbContext();
 
@@ -55,6 +56,25 @@ namespace WebApplication.Controllers {
                 MyLogger.Log.Error($"Exception when try to insert lego set on DB: {ex.InnerException?.Message}");
 
                 return CreateFailResponse(INSERT_DB_ERROR, $"Fail when try to insert new lego set: {ex.InnerException?.Message}");
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteLegoSet(int id) {
+            using var database = new LegoDbContext();
+
+            try {
+                LegoSetDb setToRemove = database.Sets.First(s => id == s.Id);
+
+                database.Sets.Remove(setToRemove);
+
+                await database.SaveChangesAsync();
+
+                return CreateSuccessEmptyResponse();
+            } catch (InvalidOperationException ex) {
+                MyLogger.Log.Error($"Lego set {id} not found");
+
+                return CreateFailResponse(ELEMENT_NOT_FOUND, $"Lego set {id} not found");
             }
         }
     }

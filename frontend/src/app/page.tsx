@@ -4,10 +4,10 @@ import { Box, Button, Card, CardActions, CardContent, CardMedia, Grid, Paper, Ty
 import LegoCard, { IButtonList } from "@/component/homepage/LegoCard";
 import AddNewLegoSetDialog from "@/component/AddNewLegoSetDialog";
 import { useEffect, useState } from "react";
-import { getMyLegoSet } from "@/utilities/request";
+import { getMyLegoSet, deleteLegoSet } from "@/utilities/request";
 import { LegoSet } from "@/utilities/type";
 import RemoveDialog, { RemoveOption } from "@/component/RemoveDialog";
-
+import { enqueueSnackbar } from "notistack";
 
 export default function Home() {
     const [showAddNewLegoSetDialog, setShowAddNewLegoSetDialog] = useState<boolean>(false);
@@ -15,33 +15,45 @@ export default function Home() {
     const [removeOption, setRemoveOption] = useState<RemoveOption>({ open: false, text: "", hide: () => { } });
     const [buttonList,] = useState<IButtonList[]>([{
         name: "Remove",
-        onClick: (id: string | number) => () => {
+        onClick: (legoSet: LegoSet) => () => {
             setRemoveOption({
                 open: true,
-                text: "Rimuovere questo set?",
+                text: `Sei sicuro di voler rimuovere il set "${legoSet.name}" dalla tua collezione?`,
                 hide: (del: boolean) => {
-                    if(!del)
-                        setRemoveOption({ ...removeOption, open: false });
+                    if (del) {
+                        deleteLegoSet(legoSet.databaseId).then(() => {
+                            enqueueSnackbar(`Set "${legoSet.legoCode}" rimosso correttamente`, { variant: "success" });
+                            loadMySetLego();    
+                            setRemoveOption(v => ({ ...v, open: false }));
+                        });
+                    } else {
+                        setRemoveOption(v => ({ ...v, open: false }));
+                    }
                 }
             });
-
         }
     }]);
 
     useEffect(() => {
+        loadMySetLego();
+    }, []);
+
+    function loadMySetLego() {
         getMyLegoSet().then(legoSets => {
             setLegoSets(legoSets!);
-
-            console.log(legoSets);
         });
-    }, []);
+    }
 
     const clickAddNewLegoSetHandler = () => {
         setShowAddNewLegoSetDialog(true);
     }
 
-    const hideAddNewLegoSetDialog = () => {
+    const hideAddNewLegoSetDialog = (save: boolean) => {
         setShowAddNewLegoSetDialog(false);
+
+        if (save) {
+            loadMySetLego();
+        }
     }
 
     return (
@@ -58,7 +70,7 @@ export default function Home() {
                     <Grid container>
                         {legoSets.map(set => (
                             <Grid key={set.databaseId} size={{ lg: 3, md: 4, sm: 6, xs: 12 }}>
-                                <LegoCard id={set.databaseId} title={set.name} imageUrl={set.imageUrl} years={set.year} pieces={undefined} buttonList={buttonList} />
+                                <LegoCard legoSet={set} buttonList={buttonList} />
                             </Grid>
                         ))}
                     </Grid>

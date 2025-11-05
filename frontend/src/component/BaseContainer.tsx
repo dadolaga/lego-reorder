@@ -1,6 +1,7 @@
 "use client"
 
 import { useTheme } from "@mui/material";
+import { SnackbarProvider } from "notistack";
 
 export default function BaseContainer({
     children,
@@ -11,7 +12,9 @@ export default function BaseContainer({
 
     return (
         <div style={{ backgroundColor: theme.palette.background.paper, width: "100vw", height: "100vh" }}>
-            {children}
+            <SnackbarProvider>
+                {children}
+            </SnackbarProvider>
         </div>
     );
 }
