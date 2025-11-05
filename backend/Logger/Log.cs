@@ -27,14 +27,14 @@ namespace MyLogger {
             if (!init_)
                 return;
 
-            Serilog.Log.Error(text, exception);
+            Serilog.Log.Error(exception, text);
         }
 
         public static void Fatal(string text, Exception? exception = null) {
             if (!init_)
                 return;
 
-            Serilog.Log.Fatal(text, exception);
+            Serilog.Log.Fatal(exception, text);
         }
 
         public static void Information(string text) {
@@ -48,7 +48,7 @@ namespace MyLogger {
             if (!init_)
                 return;
 
-            Serilog.Log.Warning(text, exception);
+            Serilog.Log.Warning(exception, text);
         }
 
     }
