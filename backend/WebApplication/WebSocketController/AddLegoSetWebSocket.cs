@@ -56,7 +56,7 @@ namespace WebApplication.WebSocketController {
                         Data = null!
                     });
 
-                    var apiPieces = await legoApi.GetAllPieceFromSet(sendedLegoSet.ApiId!); 
+                    var apiPieces = await legoApi.GetAllPieceFromSet(sendedLegoSet.ApiId!);
 
                     foreach (var piece in apiPieces) {
                         // Invalid if lego api not sended a valid color
@@ -74,7 +74,20 @@ namespace WebApplication.WebSocketController {
                         if (piece.LegoId == null) {
                             MyLogger.Log.Warning($"Lego id not founder for lego api id: {piece.ApiId}");
 
-                            continue;
+                            await SendAsync(webSocket, new Models.BaseWebSocket<List<LegoPiece>> {
+                                Code = 13,
+                                Message = $"Lego code not found: {piece.Name}",
+                                Data = new List<LegoPiece> { piece }
+                            });
+
+                            var result = await ReceiveAsync(webSocket, CancellationToken.None);
+                            var parsedResult = JsonSerializer.Deserialize<Models.BaseWebSocket<List<LegoPiece>>>(result);
+
+                            if(parsedResult != null && parsedResult.Data.Count() == 1) {
+                                var pieceFromFrontend = parsedResult.Data.First();
+
+                                piece.LegoId = pieceFromFrontend.LegoId;
+                            }
                         }
 
                         LegoColorDb dbLegoColor = await AddColorToDb(database, piece);
@@ -146,7 +159,7 @@ namespace WebApplication.WebSocketController {
                         database.Update(pieceToUpdate);
                     }
 
-                    if(pieceRecived.ApiId == piece.ApiId)
+                    if (pieceRecived.ApiId == piece.ApiId)
                         dbLegoPiece = pieceToUpdate;
                 }
 

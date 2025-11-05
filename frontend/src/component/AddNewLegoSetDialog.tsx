@@ -104,7 +104,7 @@ export default function AddNewLegoSetDialog({
     return (
         <Dialog fullWidth maxWidth="md" open={open} onClose={closeDialog} slotProps={{ paper: { sx: { height: "100%" } } }}>
             {openEditPieceDialog && checkPiece && (
-                <LegoPieceCorrectorDialog sendMessage={sendEditPieceHandler} piece1={checkPiece[0]} piece2={checkPiece[1]} />
+                <LegoPieceCorrectorDialog sendMessage={sendEditPieceHandler} pieces={checkPiece} />
             )}
             <DialogTitle>Aggiungi nuovo set Lego</DialogTitle>
             <DialogContent sx={{ boxSizing: "border-box" }}>
@@ -141,65 +141,64 @@ export default function AddNewLegoSetDialog({
 
 interface LegoPieceCorrectorProps {
     sendMessage: (text: string) => void,
-    piece1: LegoPiece,
-    piece2: LegoPiece,
+    pieces: LegoPiece[],
 }
 
 function LegoPieceCorrectorDialog({
     sendMessage,
-    piece1,
-    piece2,
+    pieces,
 }: LegoPieceCorrectorProps) {
     const { enqueueSnackbar } = useSnackbar();
-    const [piece1Code, setPiece1Code] = useState<string>(piece1.legoId || "");
-    const [piece2Code, setPiece2Code] = useState<string>(piece2.legoId || "");
+    const [pieceLegoCode, setPieceLegoCode] = useState<string[]>([]);
 
     useEffect(() => {
-        setPiece1Code(piece1.legoId || "");
-        setPiece2Code(piece2.legoId || "");
-    }, [piece1, piece2])
+        setPieceLegoCode(pieces.map(piece => piece.legoId || ""));
+    }, [pieces])
 
-    const changeValue1Handler = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-        setPiece1Code(event.target.value);
-    }, []);
-
-    const changeValue2Handler = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-        setPiece2Code(event.target.value);
+    const changeValueHandler = useCallback((index: number) => (event: ChangeEvent<HTMLInputElement>) => {
+        setPieceLegoCode(values => {
+            const newValues = [...values];
+            newValues[index] = event.target.value;
+            return newValues;
+        });
     }, []);
 
     const saveHandler = useCallback(() => {
-        if (piece1Code === piece2Code) {
-            enqueueSnackbar("I codici dei pezzi non possono essere uguali", { variant: "error" });
+        const uniqueSet = new Set<string>();
+
+        for(const piece of pieceLegoCode)
+            uniqueSet.add(piece);
+
+        if (uniqueSet.size !== pieceLegoCode.length) {
+            enqueueSnackbar("I codici dei pezzi devono essere univoci", { variant: "error" });
             return;
         }
 
         const data: BaseWebSocket<LegoPiece[]> = {
             code: 0,
             message: "Update piece code",
-            data: [{ ...piece1, legoId: piece1Code }, { ...piece2, legoId: piece2Code }]
+            data: pieces.map((piece, index) => ({
+                ...piece,
+                legoId: pieceLegoCode[index]
+            }))
         };
 
         sendMessage(JSON.stringify(data));
-    }, [enqueueSnackbar, piece1, piece1Code, piece2, piece2Code, sendMessage]);
+    }, [enqueueSnackbar, pieceLegoCode, pieces, sendMessage]);
 
     return (
         <Dialog open={true} onClose={() => { }}>
             <DialogContent>
                 <Box display="flex" gap={3}>
-                    <Card>
-                        <CardMedia sx={{ height: 250 }} image={piece1.imageUrl} />
-                        <CardContent sx={{ display: "flex", flexDirection: "column", gap: 2 }} >
-                            <Typography variant="h5" textOverflow="ellipsis" whiteSpace="nowrap" overflow="hidden" title={piece1.name}>{piece1.name}</Typography>
-                            <TextField fullWidth label="Lego code" size="small" variant="outlined" value={piece1Code} onChange={changeValue1Handler} />
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardMedia sx={{ height: 250 }} image={piece2.imageUrl} />
-                        <CardContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                            <Typography variant="h5" textOverflow="ellipsis" whiteSpace="nowrap" overflow="hidden" title={piece2.name}>{piece2.name}</Typography>
-                            <TextField fullWidth label="Lego code" size="small" variant="outlined" value={piece2Code} onChange={changeValue2Handler} />
-                        </CardContent>
-                    </Card>
+                    {pieces.map((piece, index) => (
+                        <Card key={index}>
+                            <CardMedia sx={{ height: 250, backgroundSize: "contain" }} image={piece.imageUrl}  />
+                            <CardContent sx={{ display: "flex", flexDirection: "column", gap: 2 }} >
+                                <Typography variant="h5" textOverflow="ellipsis" whiteSpace="nowrap" overflow="hidden" title={piece.name}>{piece.name}</Typography>
+                                <TextField fullWidth label="Lego code" size="small" variant="outlined" value={pieceLegoCode[index]} onChange={changeValueHandler(index)} />
+                            </CardContent>
+                        </Card>
+                    ))}
                 </Box>
             </DialogContent>
             <DialogActions>
