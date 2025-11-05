@@ -33,7 +33,7 @@ export default function RootLayout({
                 <ThemeProviderWrapper>
                     <BaseContainer>
                         <Drawer />
-                        <Box sx={{width: `calc(100% - ${drawerWidth}px)`, height: "100%", ml: `${drawerWidth}px`, p: 2, boxSizing: "border-box"}}>
+                        <Box sx={{ width: `calc(100% - ${drawerWidth}px)`, height: "100%", ml: `${drawerWidth}px`, p: 2, boxSizing: "border-box" }}>
                             {children}
                         </Box>
                     </BaseContainer>
