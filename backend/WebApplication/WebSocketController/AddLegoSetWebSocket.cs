@@ -4,6 +4,7 @@ using LegoApi.Models;
 using Logic;
 using Logic.Models;
 using Microsoft.EntityFrameworkCore;
+using System.CodeDom.Compiler;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
@@ -86,7 +87,11 @@ namespace WebApplication.WebSocketController {
                             if (parsedResult != null && parsedResult.Data.Count() == 1) {
                                 var pieceFromFrontend = parsedResult.Data.First();
 
-                                piece.LegoId = pieceFromFrontend.LegoId;
+                                if(pieceFromFrontend.LegoId == null) {
+                                    piece.LegoId = GenerateUniqeNullLegoId(database);
+                                } else {
+                                    piece.LegoId = pieceFromFrontend.LegoId;
+                                }
                             }
                         }
 
@@ -209,6 +214,23 @@ namespace WebApplication.WebSocketController {
             } else {
                 MyLogger.Log.Error($"Unexpected condition, when try to insert piece {piece.ApiId} on set {legoSetDb.LegoCode}");
             }
+        }
+
+        private string GenerateUniqeNullLegoId(LegoDbContext database) {
+            const string NullPrefix = "empty-";
+
+            int? lastId = database.Pieces
+                .Where(p => p.LegoId.StartsWith(NullPrefix))
+                .Select(p => p.LegoId)
+                .ToList()
+                .Select(legoId => Int32.Parse(legoId.Split("-")[1]))
+                .OrderByDescending(id => id)
+                .FirstOrDefault();
+
+            if(lastId == null)
+                lastId = 0;
+
+            return $"{NullPrefix}{++lastId}";
         }
     }
 }

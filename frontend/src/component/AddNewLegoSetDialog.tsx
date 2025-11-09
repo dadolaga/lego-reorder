@@ -163,11 +163,35 @@ function LegoPieceCorrectorDialog({
         });
     }, []);
 
+    const noCodeHandler = useCallback(() => {
+        if(pieceLegoCode.length !== 1 || pieceLegoCode[0]) {
+            enqueueSnackbar("Se vuoi salavre senza codice, assicurati che l'unico pezzo non abbia un codice", { variant: "error" });
+            return;
+        }
+
+        const data: BaseWebSocket<LegoPiece[]> = {
+            code: 0,
+            message: "Update piece code",
+            data: pieces.map((piece, index) => ({
+                ...piece,
+                legoId: null
+            }))
+        };
+
+        sendMessage(JSON.stringify(data));
+    }, [enqueueSnackbar, pieceLegoCode, pieces, sendMessage]);
+
     const saveHandler = useCallback(() => {
         const uniqueSet = new Set<string>();
 
-        for(const piece of pieceLegoCode)
+        for (const piece of pieceLegoCode) {
+            if (!piece) {
+                enqueueSnackbar("I codici dei pezzi non possono essere vuoti", { variant: "error" });
+                return;
+            }
+
             uniqueSet.add(piece);
+        }
 
         if (uniqueSet.size !== pieceLegoCode.length) {
             enqueueSnackbar("I codici dei pezzi devono essere univoci", { variant: "error" });
@@ -192,7 +216,7 @@ function LegoPieceCorrectorDialog({
                 <Box display="flex" gap={3}>
                     {pieces.map((piece, index) => (
                         <Card key={index}>
-                            <CardMedia sx={{ height: 250, backgroundSize: "contain" }} image={piece.imageUrl}  />
+                            <CardMedia sx={{ height: 250, backgroundSize: "contain" }} image={piece.imageUrl} />
                             <CardContent sx={{ display: "flex", flexDirection: "column", gap: 2 }} >
                                 <Typography variant="h5" textOverflow="ellipsis" whiteSpace="nowrap" overflow="hidden" title={piece.name}>{piece.name}</Typography>
                                 <TextField fullWidth label="Lego code" size="small" variant="outlined" value={pieceLegoCode[index]} onChange={changeValueHandler(index)} />
@@ -201,9 +225,14 @@ function LegoPieceCorrectorDialog({
                     ))}
                 </Box>
             </DialogContent>
-            <DialogActions>
-                <Button color="secondary" onClick={() => { }}>Annulla</Button>
-                <Button onClick={saveHandler}>Salva</Button>
+            <DialogActions sx={{ justifyContent: pieces.length !== 1 ? "end" : "space-between" }}>
+                {pieces.length == 1 && (<Box display="flex" gap={1}>
+                    <Button variant="outlined" color="inherit" onClick={noCodeHandler}>No code</Button>
+                </Box>)}
+                <Box display="flex" gap={1}>
+                    <Button color="secondary" onClick={() => { }}>Annulla</Button>
+                    <Button variant="contained" onClick={saveHandler}>Salva</Button>
+                </Box>
             </DialogActions>
         </Dialog>
     )

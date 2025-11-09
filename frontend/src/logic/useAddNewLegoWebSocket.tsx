@@ -26,6 +26,7 @@ export function useAddNewLegoWS() {
                 let state: "INIT" | "CONNECT" | "ADD" | "ERROR" = "INIT";
                 let uuid: string | null = null;
                 const socket = new WebSocket("ws://localhost:5196/ws/AddNewLegoSet");
+                setSendTest("");
                 setWebSocket(() => socket);
                 setUpdateMessage("Attendo che mi arrivi l'UUID");
 

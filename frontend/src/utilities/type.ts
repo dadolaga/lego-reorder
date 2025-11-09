@@ -15,7 +15,7 @@ export interface LegoSet {
 
 export interface LegoPiece {
     databaseId?: number; 
-    legoId?: string; 
+    legoId?: string | null; 
     apiId?: string; 
     name?: string;
     imageUrl?: string;
