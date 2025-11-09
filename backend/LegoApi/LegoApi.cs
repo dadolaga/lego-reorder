@@ -81,7 +81,7 @@ namespace LegoApi {
                                 ApiId = $"{p.Id}",
                                 Name = p.Part.Name,
                                 ImageUrl = p.Part.PartImgUrl,
-                                Quantity = (uint) p.Quantity,
+                                Quantity = (uint)p.Quantity,
                                 isSpare = p.IsSpare,
                                 Color = new IN.LegoColor {
                                     ApiId = $"{p.Color.Id}",
@@ -91,12 +91,15 @@ namespace LegoApi {
                                 }
                             };
 
-                            var matchOriginal = Regex.Match(p.Part.PartImgUrl, @"elements/([\d]+)", RegexOptions.IgnoreCase);
-                            var matchSecondary = Regex.Match(p.Part.PartImgUrl, @"ldraw/[\d]+/([\d]+)", RegexOptions.IgnoreCase);
-                            if (matchOriginal.Success) {
-                                piece.LegoId = matchOriginal.Groups[1].Value;
-                            } else if (matchSecondary.Success) {
-                                piece.LegoId = matchSecondary.Groups[1].Value;
+                            if (p.Part?.PartImgUrl != null) {
+                                var matchOriginal = Regex.Match(p.Part.PartImgUrl, @"elements/([\d]+)", RegexOptions.IgnoreCase);
+                                var matchSecondary = Regex.Match(p.Part.PartImgUrl, @"ldraw/[\d]+/([\d]+)", RegexOptions.IgnoreCase);
+
+                                if (matchOriginal.Success) {
+                                    piece.LegoId = matchOriginal.Groups[1].Value;
+                                } else if (matchSecondary.Success) {
+                                    piece.LegoId = matchSecondary.Groups[1].Value;
+                                }
                             } else if (p.ElementId != null) {
                                 piece.LegoId = p.ElementId;
                             } else {

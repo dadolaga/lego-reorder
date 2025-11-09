@@ -36,7 +36,7 @@ export function useAddNewLegoWS() {
                     if (data && data.code >= 10) {
                         state = "ERROR";
 
-                        console.error(data.message);
+                        console.log(data.message);
                         switch (data.code) {
                             case 11:
                                 enqueueSnackbar("Set lego già presente", { variant: "error" });

@@ -37,7 +37,7 @@ namespace WebApplication.WebSocketController {
                         await database.Sets.AddAsync(dbLegoSet);
                         await database.SaveChangesAsync();
                     } catch (DbUpdateException ex) {
-                        MyLogger.Log.Warning($"Try to insert a duplicate lego; {dbLegoSet.LegoCode}", ex.InnerException);
+                        MyLogger.Log.Warning($"Try to insert a duplicate lego: {dbLegoSet.LegoCode}", ex.InnerException);
 
                         await transaction.RollbackAsync();
 
@@ -83,7 +83,7 @@ namespace WebApplication.WebSocketController {
                             var result = await ReceiveAsync(webSocket, CancellationToken.None);
                             var parsedResult = JsonSerializer.Deserialize<Models.BaseWebSocket<List<LegoPiece>>>(result);
 
-                            if(parsedResult != null && parsedResult.Data.Count() == 1) {
+                            if (parsedResult != null && parsedResult.Data.Count() == 1) {
                                 var pieceFromFrontend = parsedResult.Data.First();
 
                                 piece.LegoId = pieceFromFrontend.LegoId;
@@ -98,8 +98,6 @@ namespace WebApplication.WebSocketController {
                     }
 
                     transaction.Commit();
-
-                    MyLogger.Log.Information("End add piece");
                 } catch (Exception ex) {
                     transaction.Rollback();
                 }
@@ -124,59 +122,63 @@ namespace WebApplication.WebSocketController {
         }
 
         private async Task<LegoPieceDb> AddPieceToDb(LegoDbContext database, LegoPiece piece, WebSocket webSocket, LegoColorDb legoColorDb) {
-            LegoPieceDb? dbLegoPiece = database.Pieces.FirstOrDefault(p => p.ApiId == piece.ApiId || p.LegoId == piece.LegoId);
-
-            //Check if color is the same
-            if (dbLegoPiece != null && dbLegoPiece.ColorId != legoColorDb.Id) {
-                await SendAsync(webSocket, new Models.BaseWebSocket<List<LegoPiece>> {
-                    Code = 13,
-                    Message = $"Lego code is the same but color are differente for lego piece: {dbLegoPiece.LegoId}",
-                    Data = new List<LegoPiece> { piece, dbLegoPiece.Convert() }
-                });
-
-                var result = await ReceiveAsync(webSocket, CancellationToken.None);
-                var parsedResult = JsonSerializer.Deserialize<Models.BaseWebSocket<List<LegoPiece>>>(result);
-
-                foreach (var pieceRecived in parsedResult!.Data) {
-                    LegoPieceDb pieceToUpdate = null!;
-
-                    if (pieceRecived.DatabaseId == null) {
-                        pieceToUpdate = new LegoPieceDb {
-                            ApiId = pieceRecived.ApiId,
-                            LegoId = pieceRecived.LegoId,
-                            Name = pieceRecived.Name,
-                            ColorId = legoColorDb.Id,
-                            ImageUrl = pieceRecived.ImageUrl,
-                        };
-
-                        database.Add(pieceToUpdate);
-                    } else {
-                        pieceToUpdate = database.Pieces.First(p => p.Id == pieceRecived.DatabaseId);
-
-                        pieceToUpdate.LegoId = pieceRecived.LegoId;
-
-                        // THis kill web socker
-                        database.Update(pieceToUpdate);
-                    }
-
-                    if (pieceRecived.ApiId == piece.ApiId)
-                        dbLegoPiece = pieceToUpdate;
-                }
-
-                database.SaveChanges();
-            }
+            var dbLegoPiece = database.Pieces.FirstOrDefault(p => p.ApiId == piece.ApiId || (piece.Color != null && p.LegoId == piece.LegoId && p.Color.ApiId == piece.Color.ApiId));
 
             if (dbLegoPiece == null) {
-                dbLegoPiece = new LegoPieceDb {
-                    ApiId = piece.ApiId,
-                    LegoId = piece.LegoId,
-                    Name = piece.Name,
-                    ImageUrl = piece.ImageUrl,
-                    ColorId = legoColorDb.Id
-                };
+                try {
+                    dbLegoPiece = new LegoPieceDb {
+                        ApiId = piece.ApiId,
+                        LegoId = piece.LegoId,
+                        Name = piece.Name,
+                        ImageUrl = piece.ImageUrl,
+                        ColorId = legoColorDb.Id
+                    };
 
-                await database.AddAsync(dbLegoPiece);
-                await database.SaveChangesAsync();
+                    await database.AddAsync(dbLegoPiece);
+                    await database.SaveChangesAsync();
+                } catch (DbUpdateException ex) {
+                    database.ChangeTracker.Clear();
+
+                    var duplicateLegoPiece = database.Pieces.First(p => p.LegoId == piece.LegoId);
+
+                    await SendAsync(webSocket, new Models.BaseWebSocket<List<LegoPiece>> {
+                        Code = 13,
+                        Message = $"Duplicate lego code: {duplicateLegoPiece.LegoId}",
+                        Data = new List<LegoPiece> { piece, duplicateLegoPiece.Convert() }
+                    });
+
+                    var result = await ReceiveAsync(webSocket, CancellationToken.None);
+                    var parsedResult = JsonSerializer.Deserialize<Models.BaseWebSocket<List<LegoPiece>>>(result);
+
+                    foreach (var pieceRecived in parsedResult!.Data) {
+                        LegoPieceDb pieceToUpdate = null!;
+
+                        if (pieceRecived.DatabaseId == null) {
+                            pieceToUpdate = new LegoPieceDb {
+                                ApiId = pieceRecived.ApiId,
+                                LegoId = pieceRecived.LegoId,
+                                Name = pieceRecived.Name,
+                                ColorId = legoColorDb.Id,
+                                ImageUrl = pieceRecived.ImageUrl,
+                            };
+
+                            database.Add(pieceToUpdate);
+                        } else {
+                            pieceToUpdate = database.Pieces.First(p => p.Id == pieceRecived.DatabaseId);
+
+                            pieceToUpdate.LegoId = pieceRecived.LegoId;
+
+                            // THis kill web socker
+                            database.Update(pieceToUpdate);
+                        }
+
+                        if (pieceRecived.ApiId == piece.ApiId)
+                            dbLegoPiece = pieceToUpdate;
+                    }
+                    var entry = database.Pieces.FirstOrDefault(p => p.ApiId == piece.ApiId);
+
+                    database.SaveChanges();
+                }
             }
 
             return dbLegoPiece;
