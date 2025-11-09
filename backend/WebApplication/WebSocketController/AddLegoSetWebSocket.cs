@@ -5,6 +5,7 @@ using Logic;
 using Logic.Models;
 using Microsoft.EntityFrameworkCore;
 using System.CodeDom.Compiler;
+using System.IO.Pipelines;
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
@@ -105,6 +106,23 @@ namespace WebApplication.WebSocketController {
                     transaction.Commit();
                 } catch (Exception ex) {
                     transaction.Rollback();
+
+                    DbUpdateException? updateEx = ex as DbUpdateException;
+                    if(updateEx != null) {
+                        await SendAsync(webSocket, new Models.BaseWebSocket {
+                            Code = 10,
+                            Message = $"Expection: when try to insert pieces {updateEx.InnerException?.Message}",
+                            Data = null!
+                        });
+
+                        return;
+                    }
+
+                    await SendAsync(webSocket, new Models.BaseWebSocket {
+                        Code = 10,
+                        Message = $"Expection: when try to insert pieces {ex.Message}",
+                        Data = null!
+                    });
                 }
             }
         }

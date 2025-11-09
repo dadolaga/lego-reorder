@@ -48,7 +48,7 @@ export function useAddNewLegoWS() {
                                 setCheckPiece(data.data as LegoPiece[]);
                                 break;
                             default:
-                                enqueueSnackbar("Errore sconosciuto", { variant: "error" });
+                                enqueueSnackbar("Errore sconosciuto nell inserimento dei pezzi", { variant: "error" });
                                 break;
                         }
 
