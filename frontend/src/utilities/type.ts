@@ -11,6 +11,13 @@ export interface LegoSet {
     name: string;
     year: number,
     imageUrl: string;
+    theme: LegoTheme;
+}
+
+export interface LegoTheme {
+    databaseId: number,
+    apiId: string,
+    name: string
 }
 
 export interface LegoPiece {

@@ -9,5 +9,7 @@ namespace LegoApi {
     public interface ILegoApi {
         public Task<IEnumerable<LegoSet>> SearchLegoSetFromCode(string code);
         public Task<IEnumerable<LegoPiece>> GetAllPieceFromSet(string apiId);
+        public Task<IEnumerable<LegoTheme>> GetAllTheme();
+        public Task<LegoTheme?> GetTheme(string apiId);
     }
 }

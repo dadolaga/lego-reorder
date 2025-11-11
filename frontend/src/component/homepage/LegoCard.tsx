@@ -20,6 +20,7 @@ export default function LegoCard({
             <CardMedia sx={{ height: 200 }} image={legoSet.imageUrl} />
             <CardContent>
                 <Typography variant="h5" textOverflow="ellipsis" whiteSpace="nowrap" overflow="hidden">{legoSet.name}</Typography>
+                <Typography variant="body2">Theme: {legoSet?.theme?.name || "???"}</Typography>
                 <Typography variant="body2">Years: {legoSet.year || "???"}</Typography>
                 <Typography variant="body2">Pieces: {"???"}</Typography>
             </CardContent>

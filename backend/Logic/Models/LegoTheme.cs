@@ -6,27 +6,14 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Logic.Models {
-    public class LegoSet {
-
+    public class LegoTheme {
         [JsonPropertyName("databaseId")]
         public int? DatabaseId { get; set; }
 
         [JsonPropertyName("apiId")]
         public string? ApiId { get; set; }
 
-        [JsonPropertyName("legoCode")]
-        public string? LegoCode { get; set; }
-
         [JsonPropertyName("name")]
         public string? Name { get; set; }
-
-        [JsonPropertyName("year")]
-        public int? Year { get; set; }
-
-        [JsonPropertyName("imageUrl")]
-        public string? ImageUrl { get; set; }
-
-        [JsonPropertyName("theme")]
-        public LegoTheme? Theme { get; set;}
     }
 }
