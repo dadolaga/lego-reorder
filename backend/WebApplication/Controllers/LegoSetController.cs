@@ -22,7 +22,12 @@ namespace WebApplication.Controllers {
                 Name = s.Name,
                 LegoCode = s.LegoCode,
                 ImageUrl = s.Url,
-                Year = s.Year
+                Year = s.Year,
+                Theme = s.Theme != null ? new LegoTheme {
+                    DatabaseId = s.Theme.Id,
+                    ApiId = s.Theme.ApiId,
+                    Name = s.Theme.Name
+                } : null
             }).ToListAsync();
 
             return CreateSuccessResponse(legoSet.AsEnumerable());

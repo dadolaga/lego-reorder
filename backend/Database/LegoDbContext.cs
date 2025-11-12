@@ -14,6 +14,7 @@ namespace Database {
         public DbSet<LegoPieceDb> Pieces { get; set; }
         public DbSet<LegoSetPieceDb> SetPieces { get; set; }
         public DbSet<LegoColorDb> Colors { get; set; }
+        public DbSet<LegoThemeDb> Theme { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
             try {
@@ -65,6 +66,10 @@ namespace Database {
                 .HasIndex(c => c.ApiId)
                 .IsUnique();
 
+            modelBuilder.Entity<LegoThemeDb>()
+                .HasIndex(t => t.ApiId)
+                .IsUnique();
+
             /// Foreign key
             modelBuilder.Entity<LegoSetPieceDb>()
                 .HasOne(sp => sp.Set)
@@ -80,6 +85,11 @@ namespace Database {
                 .HasOne(p => p.Color)
                 .WithMany(c => c.Pieces)
                 .HasForeignKey(p => p.ColorId);
+
+            modelBuilder.Entity<LegoSetDb>()
+                .HasOne(p => p.Theme)
+                .WithMany(c => c.Sets)
+                .HasForeignKey(p => p.ThemeId);
         }
     }
 }

@@ -27,12 +27,25 @@ namespace WebApplication.WebSocketController {
                 var transaction = database.Database.BeginTransaction();
 
                 try {
+                    var theme = database.Theme.FirstOrDefault(t => t.ApiId == sendedLegoSet.ApiId);
+
+                    if(theme == null && sendedLegoSet.Theme != null) {
+                        theme = new LegoThemeDb {
+                            ApiId = sendedLegoSet.Theme.ApiId!,
+                            Name = sendedLegoSet.Theme.Name!,
+                        };
+
+                        database.Add(theme);
+                        database.SaveChanges();
+                    }
+
                     var dbLegoSet = new LegoSetDb {
                         ApiId = sendedLegoSet.ApiId,
                         LegoCode = sendedLegoSet.LegoCode,
                         Name = sendedLegoSet.Name,
                         Url = sendedLegoSet.ImageUrl,
-                        Year = sendedLegoSet.Year
+                        Year = sendedLegoSet.Year,
+                        ThemeId = theme?.Id,
                     };
 
                     try {

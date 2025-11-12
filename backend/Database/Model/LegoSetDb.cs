@@ -12,6 +12,8 @@ namespace Database.Model {
         public string Name { get; set; }
         public int? Year { get; set; }
         public string? Url { get; set; }
+        public int? ThemeId { get; set; }
+        public LegoThemeDb? Theme { get; set; }
         public ICollection<LegoSetPieceDb> Pieces { get; set; }
     }
 }
