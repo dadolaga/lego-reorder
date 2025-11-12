@@ -67,7 +67,7 @@ export default function Home() {
                     <Button variant="contained" onClick={clickAddNewLegoSetHandler}>Aggiungi set</Button>
                 </Box>
                 <Box>
-                    <Grid container>
+                    <Grid container gap={1.5}>
                         {legoSets.map(set => (
                             <Grid key={set.databaseId} size={{ lg: 3, md: 4, sm: 6, xs: 12 }}>
                                 <LegoCard legoSet={set} buttonList={buttonList} />

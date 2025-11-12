@@ -58,6 +58,7 @@ export default function AddNewLegoSetDialog({
             setLoading(true);
 
             addNewLegoSet(set!).finally(() => {
+                hide(true);
                 setLoading(false);
             });
         }
