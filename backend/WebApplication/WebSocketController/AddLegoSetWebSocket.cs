@@ -27,7 +27,7 @@ namespace WebApplication.WebSocketController {
                 var transaction = database.Database.BeginTransaction();
 
                 try {
-                    var theme = database.Theme.FirstOrDefault(t => t.ApiId == sendedLegoSet.ApiId);
+                    var theme = database.Theme.FirstOrDefault(t => t.ApiId == sendedLegoSet.Theme!.ApiId);
 
                     if(theme == null && sendedLegoSet.Theme != null) {
                         theme = new LegoThemeDb {
