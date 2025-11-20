@@ -19,6 +19,16 @@ namespace WebApplication.Controllers {
 
             return StatusCode(200, response);
         }
+        protected IActionResult CreateSuccessListResponse<T>(IEnumerable<T> data, int count, string message = "Success function") {
+            var response = new Response<IEnumerable<T>> {
+                Code = OK,
+                Message = message,
+                Count = count,
+                Data = data
+            };
+
+            return StatusCode(200, response);
+        }
 
         protected IActionResult CreateSuccessEmptyResponse() {
             return StatusCode(204);

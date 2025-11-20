@@ -8,11 +8,13 @@ import { getMyLegoSet, deleteLegoSet } from "@/utilities/request";
 import { LegoSet } from "@/utilities/type";
 import RemoveDialog, { RemoveOption } from "@/component/RemoveDialog";
 import { enqueueSnackbar } from "notistack";
+import LegoSetDialog from "@/component/homepage/LegoSetDialog";
 
 export default function Home() {
     const [showAddNewLegoSetDialog, setShowAddNewLegoSetDialog] = useState<boolean>(false);
     const [legoSets, setLegoSets] = useState<LegoSet[]>([]);
     const [removeOption, setRemoveOption] = useState<RemoveOption>({ open: false, text: "", hide: () => { } });
+    const [legoSetInfo, setLegoSetInfo] = useState<LegoSet | undefined>(undefined);    
     const [buttonList,] = useState<IButtonList[]>([{
         name: "Remove",
         onClick: (legoSet: LegoSet) => () => {
@@ -31,6 +33,11 @@ export default function Home() {
                     }
                 }
             });
+        }
+    }, {
+        name: "info",
+        onClick: (legoSet: LegoSet) => () => {
+            setLegoSetInfo(legoSet);
         }
     }]);
 
@@ -60,6 +67,7 @@ export default function Home() {
         <Box display="flex" flexDirection="column" gap={4} height="100%">
             <RemoveDialog {...removeOption} />
             <AddNewLegoSetDialog hide={hideAddNewLegoSetDialog} open={showAddNewLegoSetDialog} />
+            <LegoSetDialog legoSet={legoSetInfo} onClose={() => setLegoSetInfo(undefined)} />
             <Typography variant="h1" color="primary" align="center">Lego Reorder</Typography>
             <Typography variant="h4" color="secondary" align="center">Ecco la tua collezione lego</Typography>
             <Paper sx={{ width: "100%", height: "100%", p: 2, boxSizing: "border-box", display: "flex", flexDirection: "column", gap: 2 }}>
@@ -67,7 +75,7 @@ export default function Home() {
                     <Button variant="contained" onClick={clickAddNewLegoSetHandler}>Aggiungi set</Button>
                 </Box>
                 <Box>
-                    <Grid container gap={1.5}>
+                    <Grid container spacing={1.5}>
                         {legoSets.map(set => (
                             <Grid key={set.databaseId} size={{ lg: 3, md: 4, sm: 6, xs: 12 }}>
                                 <LegoCard legoSet={set} buttonList={buttonList} />

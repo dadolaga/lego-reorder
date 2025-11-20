@@ -39,3 +39,7 @@ export interface LegoColor {
     value?: number; 
     trasparent?: boolean; 
 }
+
+export interface PiecesFilter {
+    setId?: number;
+}
