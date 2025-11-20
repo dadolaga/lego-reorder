@@ -10,6 +10,7 @@ namespace Database.Model {
         public string ApiId { get; set; }
         public string? Name { get; set; }
         public int? Value { get; set; }
+        public bool Trasparent { get; set; }
         public ICollection<LegoPieceDb> Pieces { get; set; }
     }
 }

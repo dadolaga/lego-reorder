@@ -1,5 +1,6 @@
 ﻿using Database.Model;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -92,6 +93,11 @@ namespace Database {
                 .HasOne(p => p.Theme)
                 .WithMany(c => c.Sets)
                 .HasForeignKey(p => p.ThemeId);
+
+            // Default
+            modelBuilder.Entity<LegoColorDb>()
+                .Property(c => c.Trasparent)
+                .HasDefaultValue(false);
         }
     }
 }
