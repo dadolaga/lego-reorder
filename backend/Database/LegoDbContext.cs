@@ -18,7 +18,9 @@ namespace Database {
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
             try {
-                optionsBuilder.UseMySql(connectionString: ConnectionString, ServerVersion.AutoDetect(ConnectionString));
+                optionsBuilder.UseMySql(connectionString: ConnectionString, ServerVersion.AutoDetect(ConnectionString))
+                    .LogTo(Console.WriteLine, LogLevel.Information)
+                    .EnableSensitiveDataLogging();
             } catch (Exception ex) {
                 MyLogger.Log.Fatal($"Connection to DB error: {ex.Message}");
                 Environment.Exit(1);
