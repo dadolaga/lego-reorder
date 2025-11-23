@@ -1,7 +1,7 @@
 import { getPieces } from "@/utilities/request";
-import { LegoPiece, PiecesFilter } from "@/utilities/type";
+import { LegoPiece, LegoSet, PiecesFilter } from "@/utilities/type";
 import { getTextColorFromBackground, toHex } from "@/utilities/utils";
-import { Box, Chip, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, Typography } from "@mui/material";
+import { Box, Chip, LinearProgress, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, Typography } from "@mui/material";
 import { ChangeEvent, MouseEvent, RefObject, use, useCallback, useEffect, useImperativeHandle, useState } from "react";
 
 export interface PiecesTableRef {
@@ -10,30 +10,36 @@ export interface PiecesTableRef {
 
 interface IProps {
     ref?: RefObject<PiecesTableRef>;
-    piecesFilter?: PiecesFilter;
+    piecesFilter: PiecesFilter;
 }
 
 export default function PiecesTable({
     ref,
     piecesFilter,
 }: IProps) {
+    const [loading, setLoading] = useState<boolean>(false)
     const [pieces, setPieces] = useState<LegoPiece[]>([]);
     const [piecesCount, setPiecesCount] = useState<number>(0);
     const [page, setPage] = useState<number>(0);
     const [rowsPerPage, setRowsPerPage] = useState<number>(25);
 
     const reloadPieces = useCallback(() => {
-        console.log("Reload pieces");
+        setLoading(true);
+        setPieces([]);
 
-        getPieces(1, {
-            limit: rowsPerPage,
-            page: page,
-            sort: []
-        }).then(pieces => {
-            setPieces(pieces.data);
-            setPiecesCount(pieces.count);
-        });
-    }, [page, rowsPerPage]);
+        if (piecesFilter.setId !== undefined) {
+            getPieces(piecesFilter?.setId, {
+                limit: rowsPerPage,
+                page: page,
+                sort: []
+            }).then(pieces => {
+                setPieces(pieces.data);
+                setPiecesCount(pieces.count);
+            }).finally(() => {
+                setLoading(false);
+            });
+        }
+    }, [page, piecesFilter.setId, rowsPerPage]);
 
     useEffect(() => {
         reloadPieces();
@@ -80,7 +86,8 @@ export default function PiecesTable({
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {pieces.map(piece => (
+                        {loading && <TableRow><TableCell sx={{p: 0, border: "none"}}colSpan={4}><LinearProgress /></TableCell></TableRow>}
+                        {!loading &&    pieces.map(piece => (
                             <TableRow key={piece.databaseId}>
                                 <TableCell>
                                     <img src={piece.imageUrl} alt={piece.name} width={70} height={70} />

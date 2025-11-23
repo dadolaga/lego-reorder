@@ -31,7 +31,7 @@ export default function LegoSetDialog({
                         </Box>
                     </Box>
                     <Box width="100%">
-                        <PiecesTable />
+                        <PiecesTable piecesFilter={{setId: legoSet?.databaseId}} />
                     </Box>
                 </Box>
             </DialogContent>
