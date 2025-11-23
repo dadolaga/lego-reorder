@@ -1,4 +1,4 @@
-import { getPieces } from "@/utilities/request";
+import { getPieces, OrderOptions } from "@/utilities/request";
 import { LegoPiece, LegoSet, PiecesFilter } from "@/utilities/type";
 import { getTextColorFromBackground, toHex } from "@/utilities/utils";
 import { Box, Chip, LinearProgress, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, Typography } from "@mui/material";
@@ -22,6 +22,7 @@ export default function PiecesTable({
     const [piecesCount, setPiecesCount] = useState<number>(0);
     const [page, setPage] = useState<number>(0);
     const [rowsPerPage, setRowsPerPage] = useState<number>(25);
+    const [order, setOrder] = useState<OrderOptions>({ name: "color", direction: "asc" });
 
     const reloadPieces = useCallback(() => {
         setLoading(true);
@@ -31,7 +32,7 @@ export default function PiecesTable({
             getPieces(piecesFilter?.setId, {
                 limit: rowsPerPage,
                 page: page,
-                sort: []
+                sort: [order]
             }).then(pieces => {
                 setPieces(pieces.data);
                 setPiecesCount(pieces.count);
@@ -39,7 +40,7 @@ export default function PiecesTable({
                 setLoading(false);
             });
         }
-    }, [page, piecesFilter.setId, rowsPerPage]);
+    }, [page, piecesFilter.setId, rowsPerPage, order]);
 
     useEffect(() => {
         reloadPieces();
@@ -65,6 +66,14 @@ export default function PiecesTable({
         setRowsPerPage(parseInt(event.target.value, 10));
     }, []);
 
+    const handleOrder = useCallback((name: string) => () => {
+        if(order.name === name) {
+            setOrder(v => ({ ...v, direction: v.direction === "asc" ? "desc" : "asc" }));
+        } else {
+            setOrder({ name, direction: "asc" });
+        }
+    }, [order]);
+
     return (
         <Paper sx={{ height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
             <TableContainer sx={{ height: "100%" }}>
@@ -74,20 +83,20 @@ export default function PiecesTable({
                             <TableCell width={70}></TableCell>
                             <TableCell>Name</TableCell>
                             <TableCell>
-                                <TableSortLabel>
+                                <TableSortLabel active={order.name === "color"} direction={order.direction} onClick={handleOrder("color")}>
                                     Color
                                 </TableSortLabel>
                             </TableCell>
                             <TableCell width={70}>
-                                <TableSortLabel>
+                                <TableSortLabel active={order.name === "quantity"} direction={order.direction} onClick={handleOrder("quantity")}>
                                     Qta
                                 </TableSortLabel>
                             </TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {loading && <TableRow><TableCell sx={{p: 0, border: "none"}}colSpan={4}><LinearProgress /></TableCell></TableRow>}
-                        {!loading &&    pieces.map(piece => (
+                        {loading && <TableRow><TableCell sx={{ p: 0, border: "none" }} colSpan={4}><LinearProgress /></TableCell></TableRow>}
+                        {!loading && pieces.map(piece => (
                             <TableRow key={piece.databaseId}>
                                 <TableCell>
                                     <img src={piece.imageUrl} alt={piece.name} width={70} height={70} />

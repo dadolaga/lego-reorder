@@ -22,7 +22,7 @@ export interface FilterOptions {
 
 export interface OrderOptions {
     name: string,
-    direction: "ASC" | "DESC"
+    direction: "asc" | "desc"
 }
 
 export async function searchLego(search: string) {
@@ -50,7 +50,7 @@ export async function getPieces(setId: number, filter?: FilterOptions) {
 }
 
 function convertInOrderString(orderOptions: OrderOptions[]): string {
-    return orderOptions.map<string>(value => `${value.direction === "ASC" ? "+" : "-"}${value.name}`).join(',');
+    return orderOptions.map<string>(value => `${value.direction === "asc" ? "+" : "-"}${value.name}`).join(',');
 }
 
 async function request<T>(method: "GET" | "POST" | "DELETE", url: string, data: object | undefined = undefined, filter: FilterOptions | undefined = undefined, axiosConfig: AxiosRequestConfig = {}): Promise<T | null> {
