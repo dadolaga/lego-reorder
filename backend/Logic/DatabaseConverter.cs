@@ -26,5 +26,15 @@ namespace Logic {
                 
             };
         }
+
+        public static LegoColor Convert(this LegoColorDb colorDb) {
+            return new LegoColor {
+                DatabaseId = colorDb.Id,
+                ApiId = colorDb.ApiId,
+                Name = colorDb.Name,
+                Value = colorDb.Value,
+                Trasparent = colorDb.Trasparent,
+            };
+        }
     }
 }

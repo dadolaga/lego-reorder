@@ -1,5 +1,6 @@
 using Database;
 using Database.Model;
+using Logic;
 using Logic.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -33,11 +34,26 @@ namespace WebApplication.Controllers {
             return CreateSuccessResponse(legoSet.AsEnumerable());
         }
 
+        [HttpGet("Colors/{id}")]
+        public async Task<IActionResult> GetColor(int id) {
+            using var database = new LegoDbContext();
+
+            var legoSetColor = await database.Sets
+                .Where(s => s.Id == id)
+                .Include(s => s.Pieces)
+                .SelectMany(s => s.Pieces)
+                .Select(p => p.Piece.Color)
+                .Distinct()
+                .ToListAsync();
+
+            return CreateSuccessResponse(legoSetColor.Select(c => c.Convert()).AsEnumerable());
+        }
+
         [HttpPost]
         public async Task<IActionResult> AddNewLegoSet([FromBody] LegoSet legoSet) {
             using var database = new LegoDbContext();
 
-            if(database.Sets.FirstOrDefault(s => s.LegoCode == legoSet.LegoCode) != null) {
+            if (database.Sets.FirstOrDefault(s => s.LegoCode == legoSet.LegoCode) != null) {
                 MyLogger.Log.Warning($"Lego \"{legoSet.Name}\" not insert, aldready exist");
 
                 return CreateFailResponse(ELEMENT_ALREADY_EXIST, $"Lego number {legoSet.LegoCode} already insert");

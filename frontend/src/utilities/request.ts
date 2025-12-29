@@ -1,6 +1,6 @@
 import { axiosInstance as axios } from '@/utilities/axios'
 import { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { LegoPiece, LegoSet } from './type';
+import { LegoColor, LegoPiece, LegoSet } from './type';
 
 export interface Response<T = null> {
     code: number,
@@ -39,6 +39,10 @@ export async function deleteLegoSet(id: number) {
 
 export async function addPieceToLegoSet(set: LegoSet) {
     return request<void>("POST", "InsertPiecesFromApi", set, undefined, { timeout: 60000 });
+}
+
+export async function getLegoPieceColorsFromSet(set: LegoSet) {
+    return request<LegoColor[]>("GET", `LegoSet/Colors/${set.databaseId}`);
 }
 
 export async function getMyLegoSet() {
