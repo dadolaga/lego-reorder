@@ -131,7 +131,7 @@ export default function SetMyBrick({
             {(loading || loadingWS) && <LinearProgress />}
             <DialogTitle>Add my brick - {legoSet?.name}</DialogTitle>
             <DialogContent sx={{ height: "100%" }}>
-                <Box display="flex" flexDirection="column">
+                <Box height="100%" display="grid" gridTemplateRows="auto 1fr">
                     <Box>
                         <FormControl sx={{ m: 1, width: 300 }} size="small">
                             <InputLabel id="multi-color-select">Color</InputLabel>
@@ -153,7 +153,7 @@ export default function SetMyBrick({
                             </Select>
                         </FormControl>
                     </Box>
-                    <Paper sx={{ height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                    <Paper sx={{ height: "100%", overflowY: "auto", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                         <TableContainer sx={{ height: "100%" }}>
                             <Table stickyHeader>
                                 <TableHead>
