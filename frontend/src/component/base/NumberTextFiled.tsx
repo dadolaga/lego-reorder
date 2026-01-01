@@ -12,7 +12,7 @@ const NumberTextField = memo((props: IProps) => {
         const value = event.target.value
 
         if (props.onValueChange) {
-            if(RegExp(/^\d+$/).test(value)) {
+            if(RegExp(/^\d*$/).test(value)) {
                 props.onValueChange(parseInt(value))
             }
         }
