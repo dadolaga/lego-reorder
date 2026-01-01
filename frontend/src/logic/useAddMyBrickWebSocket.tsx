@@ -1,5 +1,4 @@
-import { FilterOptions } from "@/utilities/request";
-import { BaseWebSocket, LegoPiece, LegoSet } from "@/utilities/type";
+import { BaseWebSocket, LegoSet } from "@/utilities/type";
 import { useSnackbar } from "notistack";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -90,6 +89,9 @@ export function useAddMyBrickWS() {
                 console.log("Socket closed");
             };
         }, [enqueueSnackbar]),
+        close: useCallback(() => {
+            websocket.current?.close();
+        }, []),
         loading,
         selectedPieceId,
         sendActive,

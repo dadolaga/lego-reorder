@@ -1,6 +1,6 @@
 import { LegoColor, LegoPiece, LegoSet } from "@/utilities/type";
 import { toHex, getTextColorFromBackground } from "@/utilities/utils";
-import { Box, Button, Checkbox, Chip, Dialog, DialogContent, DialogTitle, FormControl, InputLabel, LinearProgress, MenuItem, OutlinedInput, Paper, Select, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Typography } from "@mui/material";
+import { Box, Button, Checkbox, Chip, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, LinearProgress, MenuItem, OutlinedInput, Paper, Select, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Typography } from "@mui/material";
 import { ChangeEvent, useCallback, useEffect, useState, MouseEvent, FocusEvent, use } from "react";
 import NumberTextField from "./base/NumberTextFiled";
 import { useAddMyBrickWS } from "@/logic/useAddMyBrickWebSocket";
@@ -20,7 +20,7 @@ export default function SetMyBrick({
     legoSet,
     onClose,
 }: IProps) {
-    const { run, loading: loadingWS, selectedPieceId: activePieceOnOtherDevice, sendActive, sendDeactivate } = useAddMyBrickWS();
+    const { run, close: closeWS, loading: loadingWS, selectedPieceId: activePieceOnOtherDevice, sendActive, sendDeactivate } = useAddMyBrickWS();
     const [page, setPage] = useState<number>(0);
     const [piecesCount, setPiecesCount] = useState<number>(0);
     const [loading, setLoading] = useState<boolean>(false);
@@ -119,6 +119,11 @@ export default function SetMyBrick({
         sendActive(piece.databaseId!)
     }, [sendActive]);
 
+    const closeHandler = useCallback(() => {
+        closeWS();
+        onClose();
+    }, [closeWS, onClose]);
+
     //TODO Fare la parte di chiusura sia su client che su server
 
     return (
@@ -202,6 +207,9 @@ export default function SetMyBrick({
                     </Paper>
                 </Box>
             </DialogContent>
+            <DialogActions>
+                <Button onClick={closeHandler}>Close</Button>
+            </DialogActions>
         </Dialog>
     );
 }
