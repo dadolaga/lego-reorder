@@ -1,7 +1,7 @@
 import { LegoColor, LegoPiece, LegoSet } from "@/utilities/type";
 import { toHex, getTextColorFromBackground } from "@/utilities/utils";
 import { Box, Button, Checkbox, Chip, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, LinearProgress, MenuItem, OutlinedInput, Paper, Select, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Typography } from "@mui/material";
-import { ChangeEvent, useCallback, useEffect, useState, MouseEvent, FocusEvent, use } from "react";
+import { ChangeEvent, useCallback, useEffect, useState, MouseEvent, KeyboardEvent, useRef } from "react";
 import NumberTextField from "./base/NumberTextFiled";
 import { useAddMyBrickWS } from "@/logic/useAddMyBrickWebSocket";
 import { getLegoPieceColorsFromSet, getPieces } from "@/utilities/request";
@@ -20,12 +20,19 @@ export default function SetMyBrick({
     legoSet,
     onClose,
 }: IProps) {
-    const { run, close: closeWS, loading: loadingWS, selectedPieceId: activePieceOnOtherDevice, sendActive, sendDeactivate } = useAddMyBrickWS();
+    const pieceTextRef = useRef<Map<number, HTMLInputElement>>(new Map());
+
+    const { run,
+        close: closeWS,
+        loading: loadingWS,
+        selectedPieceId: activePieceOnOtherDevice,
+        piecesQuantityHave,
+        sendActive,
+        sendPersonalQuantity } = useAddMyBrickWS();
     const [page, setPage] = useState<number>(0);
     const [piecesCount, setPiecesCount] = useState<number>(0);
     const [loading, setLoading] = useState<boolean>(false);
-    const [values, setValues] = useState<number[]>([]);
-    const [selected, setSelected] = useState<number[]>([]);
+    const [values, setValues] = useState<(number | undefined)[]>([]);
     const [colors, setColors] = useState<LegoColor[]>([]);
     const [selectedColor, setSelectedColor] = useState<LegoColor[]>([]);
     const [activePieceId, setActivePieceId] = useState<number>();
@@ -63,12 +70,28 @@ export default function SetMyBrick({
         }).finally(() => {
             setLoading(false);
         });
-    }, [legoSet, page])
+    }, [legoSet, page]);
 
-    const insertTextHandler = useCallback((index: number) => (value: number) => {
+    useEffect(() => {
+        if (piecesQuantityHave === null)
+            return;
+
+        const newValues: number[] = [];
+
+        for (const pieceQuantity of piecesQuantityHave!) {
+            newValues[pieceQuantity.pieceId] = pieceQuantity.quantityHave;
+        }
+
+        console.log("Update Values", newValues, piecesQuantityHave);
+
+        setValues(newValues);
+
+    }, [piecesQuantityHave])
+
+    const insertTextHandler = useCallback((piece: LegoPiece) => (value: number) => {
         setValues((values) => {
             const newValues = [...values];
-            newValues[index] = value;
+            newValues[piece.databaseId!] = value;
             return newValues;
         });
     }, []);
@@ -119,12 +142,28 @@ export default function SetMyBrick({
         sendActive(piece.databaseId!)
     }, [sendActive]);
 
+    const keyPressedOnPieceHandler = useCallback((piece: LegoPiece) => (event: KeyboardEvent<HTMLDivElement>) => {
+        if (event.key === "Enter") {
+            sendPersonalQuantity(piece.databaseId!, values[piece.databaseId!]!)
+        }
+    }, [sendPersonalQuantity, values]);
+
+    const editValueButtonHandler = useCallback((piece: LegoPiece) => () => {
+        setValues((values) => {
+            const newValues = [...values];
+            newValues[piece.databaseId!] = undefined;
+            return newValues;
+        });
+
+        setTimeout(() => {
+            pieceTextRef.current.get(piece.databaseId!)?.focus();
+        }, 10);
+    }, []);
+
     const closeHandler = useCallback(() => {
         closeWS();
         onClose();
     }, [closeWS, onClose]);
-
-    //TODO Fare la parte di chiusura sia su client che su server
 
     return (
         <Dialog fullWidth maxWidth="md" sx={{ "& .MuiDialog-paper": { height: "60%" } }} open={legoSet !== undefined}>
@@ -166,13 +205,14 @@ export default function SetMyBrick({
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {!loading && pieces.map((piece, index) => (
+                                    {!loading && pieces.map((piece) => (
                                         <TableRow
                                             key={piece.databaseId}
                                             sx={{
                                                 backgroundColor: piece.databaseId == activePieceId ? ACTIVE : (activePieceOnOtherDevice.find(id => id === piece.databaseId) ? ACTIVE_ON_OTHER_DEVICE : undefined)
                                             }}>
                                             <TableCell>
+                                                {/* eslint-disable-next-line @next/next/no-img-element*/}
                                                 <img src={piece.imageUrl} alt={piece.name} width={100} height={100} />
                                             </TableCell>
                                             <TableCell>
@@ -186,8 +226,26 @@ export default function SetMyBrick({
                                             </TableCell>
                                             <TableCell>
                                                 <Box display="flex" flexDirection="column" gap={2}>
-                                                    <NumberTextField fullWidth size="small" value={values[index]} onValueChange={insertTextHandler(index)} onFocus={focusOnPiece(piece)} disabled={selected.includes(piece.databaseId!)} />
-                                                    <Button tabIndex={-1} variant="contained" disabled={selected.includes(piece.databaseId!)}>Edit</Button>
+                                                    <NumberTextField
+                                                        inputRef={(node) => {
+                                                            if (node) {
+                                                                pieceTextRef.current.set(piece.databaseId!, node);
+                                                            } else {
+                                                                pieceTextRef.current.delete(piece.databaseId!);
+                                                            }
+                                                        }}
+                                                        fullWidth
+                                                        size="small"
+                                                        value={values[piece.databaseId!]}
+                                                        onValueChange={insertTextHandler(piece)}
+                                                        onKeyUp={keyPressedOnPieceHandler(piece)}
+                                                        onFocus={focusOnPiece(piece)}
+                                                        disabled={piece.databaseId != activePieceId && (values[piece.databaseId!] !== undefined || (activePieceOnOtherDevice.find(id => id === piece.databaseId) !== undefined))} />
+                                                    <Button
+                                                        tabIndex={-1}
+                                                        variant="contained"
+                                                        onClick={editValueButtonHandler(piece)}
+                                                        disabled={values[piece.databaseId!] === undefined || activePieceOnOtherDevice.find(id => id === piece.databaseId) !== undefined}>Edit</Button>
                                                 </Box>
                                             </TableCell>
                                         </TableRow>

@@ -2,11 +2,18 @@ import { BaseWebSocket, LegoSet } from "@/utilities/type";
 import { useSnackbar } from "notistack";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+export interface SetPieceQuantityHave {
+    pieceId: number,
+    quantityHave: number,
+}
+
 export function useAddMyBrickWS() {
     const websocket = useRef<WebSocket | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [sendText, setSendTest] = useState<string>("");
+    const [piecesQuantityHave, setPiecesQuantityHave] = useState<SetPieceQuantityHave[] | null>(null);
     const [selectedPieceId, setSelectedPieceId] = useState<number[]>([]);
+
     const { enqueueSnackbar } = useSnackbar();
 
     useEffect(() => {
@@ -27,7 +34,18 @@ export function useAddMyBrickWS() {
             data: pieceId
         };
 
-        console.log("Send data", data, websocket.current);
+        websocket.current!.send(JSON.stringify(data));
+    }, []);
+
+    const sendPersonalQuantity = useCallback((pieceId: number, quantity: number) => {
+        const data: BaseWebSocket<{ pieceId: number, quantity: number }> = {
+            code: 11,
+            message: "Update piece personal quantity",
+            data: {
+                pieceId,
+                quantity
+            }
+        };
 
         websocket.current!.send(JSON.stringify(data));
     }, []);
@@ -57,11 +75,15 @@ export function useAddMyBrickWS() {
                 if (data) {
                     console.log("Received", data);
 
-                    switch(data.code) {
+                    switch (data.code) {
                         case 10:
                             setSelectedPieceId(data.data as number[]);
                             break;
 
+                        case 20:
+                            setPiecesQuantityHave(data.data as SetPieceQuantityHave[]);
+                            break;
+                        
                         default:
                             console.error(`Unknown code: ${data.code}, message: ${data.message}`);
                             break;
@@ -94,7 +116,9 @@ export function useAddMyBrickWS() {
         }, []),
         loading,
         selectedPieceId,
+        piecesQuantityHave,
         sendActive,
+        sendPersonalQuantity,
         sendDeactivate,
         sendMessage: setSendTest,
     }

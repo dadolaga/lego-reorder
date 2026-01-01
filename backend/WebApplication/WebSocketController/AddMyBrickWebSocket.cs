@@ -1,9 +1,11 @@
-﻿using Logic.Models;
+﻿using Database.Model;
+using Logic.Models;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Data;
 using System.Net.WebSockets;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace WebApplication.WebSocketController {
     public class AddMyBrickWebSocket : BaseWebSocket {
@@ -16,6 +18,34 @@ namespace WebApplication.WebSocketController {
                 Code = 10,
                 Message = "Selected piece",
                 Data = clients.GetAllActivePieces(legoSetId).ToList()
+            };
+
+            await SendToAll(legoSetId, data);
+        }
+
+        private static async Task SendAllPieceQuantity(int legoSetId) {
+            using var database = new Database.LegoDbContext();
+
+            var data = new Models.BaseWebSocket<List<SetPieceQuantityHave>> {
+                Code = 20,
+                Message = "Quantity for all pieces",
+                Data = database.SetPieces
+                    .Where(sp => sp.SetId == legoSetId && sp.QuantityHave != null)
+                    .Select(sp => new SetPieceQuantityHave { PieceId = sp.PieceId, QuantityHave = (uint)sp.QuantityHave! })
+                    .ToList()
+            };
+
+            await SendToAll(legoSetId, data);
+        }
+
+        private static async Task SendPieceQuantity(int legoSetId, int legoPieceId, uint legoQuantity) {
+            var data = new Models.BaseWebSocket<SetPieceQuantityHave> {
+                Code = 21,
+                Message = "Quantity for single pieces",
+                Data = new SetPieceQuantityHave {
+                    PieceId = legoPieceId,
+                    QuantityHave = legoQuantity
+                }
             };
 
             await SendToAll(legoSetId, data);
@@ -46,6 +76,8 @@ namespace WebApplication.WebSocketController {
 
             await SendActivePieces(legoSet.DatabaseId.Value);
 
+            await SendAllPieceQuantity(legoSet.DatabaseId.Value);
+
             while (true) {
                 var message = await ReceiveAsync<JsonElement>(webSocket, CancellationToken.None);
 
@@ -53,6 +85,22 @@ namespace WebApplication.WebSocketController {
                     clients.AssignLegoPiece(uuid, message.Data.GetInt32(), true);
 
                     await SendActivePieces(legoSet.DatabaseId.Value);
+                } else if (message.Code == 11) {
+                    var pieceId = message.Data.GetProperty("pieceId").GetInt32();
+                    var quantity = message.Data.GetProperty("quantity").GetUInt32();
+
+                    using (var database = new Database.LegoDbContext()) {
+                        var setPiece = database.SetPieces.First(sp => sp.SetId == legoSet.DatabaseId.Value && sp.PieceId == pieceId);
+
+                        setPiece.QuantityHave = quantity;
+
+                        database.Update(setPiece);
+                        await database.SaveChangesAsync();
+                    }
+
+                    await SendPieceQuantity(legoSet.DatabaseId.Value, pieceId, quantity);
+                } else {
+                    MyLogger.Log.Warning($"Received message not recognized: {message.Message} ({message.Code})");
                 }
             }
         }
@@ -152,5 +200,12 @@ namespace WebApplication.WebSocketController {
             public int? ActiveSetId { get; set; }
             public int? ActivePieceId { get; set; }
         }
+    }
+
+    internal class SetPieceQuantityHave {
+        [JsonPropertyName("pieceId")]
+        public int PieceId { get; set; }
+        [JsonPropertyName("quantityHave")]
+        public uint QuantityHave { get; set; }
     }
 }
