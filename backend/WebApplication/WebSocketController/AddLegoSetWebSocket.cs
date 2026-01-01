@@ -225,7 +225,7 @@ namespace WebApplication.WebSocketController {
                     SetId = legoSetDb.Id,
                     PieceId = legoPieceDb.Id,
                     Quantity = !piece.isSpare ? piece.Quantity : 0,
-                    QuantityHave = 0,
+                    QuantityHave = null,
                     SpareQuantity = piece.isSpare ? piece.Quantity : 0
                 };
 

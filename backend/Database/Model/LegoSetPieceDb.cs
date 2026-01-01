@@ -12,6 +12,6 @@ namespace Database.Model {
         public LegoPieceDb Piece { get; set; }
         public uint Quantity { get; set; }
         public uint SpareQuantity { get; set; }
-        public uint QuantityHave { get; set; }
+        public uint? QuantityHave { get; set; }
     }
 }
