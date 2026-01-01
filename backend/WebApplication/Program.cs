@@ -62,6 +62,16 @@ namespace WebApplication {
                     } else {
                         context.Response.StatusCode = StatusCodes.Status400BadRequest;
                     }
+                } else if (context.Request.Path == "/ws/AddMyBrick") {
+                    if (context.WebSockets.IsWebSocketRequest) {
+                        using (WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync()) {
+                            var addMyBrickWebSocket = new AddMyBrickWebSocket();
+
+                            await addMyBrickWebSocket.Run(webSocket);
+                        }
+                    } else {
+                        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                    }
                 } else {
                     await next();
                 }
