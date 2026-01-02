@@ -144,7 +144,26 @@ export default function SetMyBrick({
 
     const keyPressedOnPieceHandler = useCallback((piece: LegoPiece) => (event: KeyboardEvent<HTMLDivElement>) => {
         if (event.key === "Enter") {
-            sendPersonalQuantity(piece.databaseId!, values[piece.databaseId!]!)
+            sendPersonalQuantity(piece.databaseId!, values[piece.databaseId!]!);
+
+            const inputs: HTMLInputElement[] = [...document.querySelectorAll<HTMLInputElement>(".quantity-have-field div input")];
+
+            inputs.forEach((field, index) => {
+                if (field === event.target) {
+                    setTimeout(() => {
+                        let timeoutIndex = index + 1;
+                        let input = inputs[timeoutIndex];
+
+                        // Jump all disabled input
+                        while(input.disabled) {
+                            timeoutIndex++;
+                            input = inputs[timeoutIndex];
+                        }
+
+                        input.focus();
+                    }, 10);
+                }
+            });
         }
     }, [sendPersonalQuantity, values]);
 
@@ -236,6 +255,7 @@ export default function SetMyBrick({
                                                         }}
                                                         fullWidth
                                                         size="small"
+                                                        className="quantity-have-field"
                                                         value={values[piece.databaseId!]}
                                                         onValueChange={insertTextHandler(piece)}
                                                         onKeyUp={keyPressedOnPieceHandler(piece)}
