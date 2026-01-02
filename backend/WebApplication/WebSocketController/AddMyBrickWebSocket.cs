@@ -56,7 +56,11 @@ namespace WebApplication.WebSocketController {
 
             if (webSocketList != null) {
                 foreach (var webSocket in webSocketList) {
-                    await SendAsync(webSocket, message);
+                    if (webSocket.State == WebSocketState.Open) {
+                        await SendAsync(webSocket, message);
+                    } else {
+                        MyLogger.Log.Warning("Web socket is not in correct state. Removing...");
+                    }
                 }
             }
         }
@@ -143,6 +147,20 @@ namespace WebApplication.WebSocketController {
                 }
 
                 clients.Remove(client);
+            }
+        }
+
+        public void RemovingAllClosedOrError() {
+            lock (clients) {
+                foreach (var client in clients) {
+                    if (client.WebSocket.State == WebSocketState.Aborted
+                        || client.WebSocket.State == WebSocketState.CloseReceived
+                        || client.WebSocket.State == WebSocketState.CloseSent) {
+                        MyLogger.Log.Warning($"Removing web socket {client.Uuid}");
+
+                        clients.Remove(client);
+                    }
+                }
             }
         }
 
