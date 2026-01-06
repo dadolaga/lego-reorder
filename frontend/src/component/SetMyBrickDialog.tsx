@@ -63,14 +63,19 @@ export default function SetMyBrick({
         getPieces(legoSet.databaseId, {
             limit: TABLE_SIZE,
             page: page,
-            sort: [{ name: "color", direction: "asc" }, { name: "quantity", direction: "desc" }]
+            sort: [{ name: "color", direction: "asc" }, { name: "quantity", direction: "desc" }],
+            where: {
+                color: {
+                    in: selectedColor.map(color => color.databaseId!)
+                }
+            }
         }).then(pieces => {
             setPieces(pieces.data);
             setPiecesCount(pieces.count);
         }).finally(() => {
             setLoading(false);
         });
-    }, [legoSet, page]);
+    }, [legoSet, page, selectedColor]);
 
     useEffect(() => {
         if (piecesQuantityHave === null)
@@ -256,6 +261,7 @@ export default function SetMyBrick({
                                                         fullWidth
                                                         size="small"
                                                         className="quantity-have-field"
+                                                        autoComplete="off"
                                                         value={values[piece.databaseId!]}
                                                         onValueChange={insertTextHandler(piece)}
                                                         onKeyUp={keyPressedOnPieceHandler(piece)}
