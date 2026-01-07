@@ -52,7 +52,6 @@ export default function SetMyBrick({
 
         getLegoPieceColorsFromSet(legoSet).then((apiColors) => {
             setColors(apiColors!);
-            setSelectedColor(apiColors!);
         });
     }, [legoSet]);
 
@@ -158,7 +157,7 @@ export default function SetMyBrick({
                         let input = inputs[timeoutIndex];
 
                         // Jump all disabled input
-                        while(input.disabled) {
+                        while (input.disabled) {
                             timeoutIndex++;
                             input = inputs[timeoutIndex];
                         }
@@ -227,6 +226,11 @@ export default function SetMyBrick({
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
+                                    {selectedColor.length === 0 &&
+                                        <TableRow>
+                                            <TableCell sx={{ border: "none" }} colSpan={5}><Typography align="center" fontStyle="italic" color="textDisabled">Select color...</Typography></TableCell>
+                                        </TableRow>
+                                    }
                                     {!loading && pieces.map((piece) => (
                                         <TableRow
                                             key={piece.databaseId}
