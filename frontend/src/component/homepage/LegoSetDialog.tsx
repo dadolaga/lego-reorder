@@ -1,9 +1,9 @@
 import { LegoPiece, LegoSet } from "@/utilities/type";
 import { Badge, Box, Button, Dialog, DialogContent, DialogTitle, Typography } from "@mui/material";
-import Image from "next/image";
 import PiecesTable from "../PiecesTable";
 import { useCallback, useEffect, useState } from "react";
 import SetMyBricksDialog from "../SetMyBrickDialog";
+import { getPieces } from "@/utilities/request";
 
 interface IProps {
     legoSet?: LegoSet,
@@ -15,6 +15,20 @@ export default function LegoSetDialog({
     onClose,
 }: IProps) {
     const [showAddMyBrick, setShowAddMyBrick] = useState<boolean>(false);
+    const [pieces, setPieces] = useState<LegoPiece[]>([]);
+
+    useEffect(() => {
+        if (legoSet === undefined)
+            return;
+
+        getPieces(legoSet.databaseId, {
+            limit: 1000,
+            page: 0,
+            sort: []
+        }).then(pieces => {
+            setPieces(pieces.data);
+        });
+    }, [legoSet]);
 
     const showAddMyBricksDialog = useCallback(() => {
         setShowAddMyBrick(true);
@@ -41,7 +55,10 @@ export default function LegoSetDialog({
                                 <Typography>Theme: {legoSet?.theme.name}</Typography>
                                 <Typography>Code: {legoSet?.legoCode}</Typography>
                                 <Typography>Year: {legoSet?.year}</Typography>
-                                <Typography>Pieces: {"..."}</Typography>
+                                <br />
+                                <Typography>Pieces: {pieces.length > 0 ? pieces.length : "..."}</Typography>
+                                <Typography>Pieces i have: {pieces.length > 0 ? pieces.reduce((accumulator, piece) => accumulator + (piece.quantityHave && piece.quantityHave > 0 ? 1 : 0), 0) : "..."}</Typography>
+                                <Typography>Number of pieces: {pieces.length > 0 ? pieces.reduce((accumulator, piece) => accumulator + piece.quantity, 0) : "..."}</Typography>
                             </Box>
                         </Box>
                         <Box p="0px 32px" display="flex" flexDirection="column" gap={1}>

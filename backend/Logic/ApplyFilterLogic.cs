@@ -35,7 +35,7 @@ namespace Logic {
             }
 
             if (orderedSource == null) {
-                orderedSource = source.Order();
+                return source.Skip(filter.Page * filter.Limit).Take(filter.Limit);
             }
 
             return orderedSource.Skip(filter.Page * filter.Limit).Take(filter.Limit);
