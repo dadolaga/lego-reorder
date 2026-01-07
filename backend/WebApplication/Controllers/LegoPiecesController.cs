@@ -46,6 +46,7 @@ namespace WebApplication.Controllers {
                 },
                 isSpare = p.SpareQuantity != 0,
                 Quantity = p.SpareQuantity != 0 ? p.SpareQuantity : p.Quantity,
+                QuantityHave = p.QuantityHave
             });
 
             return CreateSuccessListResponse(convertedPieces, quantity);

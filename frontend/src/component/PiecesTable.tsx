@@ -1,6 +1,7 @@
 import { getPieces, OrderOptions } from "@/utilities/request";
 import { LegoPiece, LegoSet, PiecesFilter } from "@/utilities/type";
 import { getTextColorFromBackground, toHex } from "@/utilities/utils";
+import { Icon } from "@iconify/react";
 import { Box, Chip, LinearProgress, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, Typography } from "@mui/material";
 import { ChangeEvent, MouseEvent, RefObject, use, useCallback, useEffect, useImperativeHandle, useState } from "react";
 
@@ -67,7 +68,7 @@ export default function PiecesTable({
     }, []);
 
     const handleOrder = useCallback((name: string) => () => {
-        if(order.name === name) {
+        if (order.name === name) {
             setOrder(v => ({ ...v, direction: v.direction === "asc" ? "desc" : "asc" }));
         } else {
             setOrder({ name, direction: "asc" });
@@ -80,6 +81,7 @@ export default function PiecesTable({
                 <Table stickyHeader>
                     <TableHead>
                         <TableRow>
+                            <TableCell width={10}></TableCell>
                             <TableCell width={70}></TableCell>
                             <TableCell>Name</TableCell>
                             <TableCell>
@@ -92,12 +94,19 @@ export default function PiecesTable({
                                     Qta
                                 </TableSortLabel>
                             </TableCell>
+                            <TableCell sx={{minWidth: "40px"}}>I have</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {loading && <TableRow><TableCell sx={{ p: 0, border: "none" }} colSpan={4}><LinearProgress /></TableCell></TableRow>}
                         {!loading && pieces.map(piece => (
                             <TableRow key={piece.databaseId}>
+                                <TableCell>
+                                    {piece.quantityHave !== null && piece.quantityHave !== undefined &&
+                                        (piece.quantityHave == 0 ? <Icon fontSize={27} color="#c1121f" icon="mingcute:close-line" />
+                                            : (piece.quantityHave < piece.quantity ? <Icon fontSize={27} color="#0096c7" icon="pepicons-pop:line-x" />
+                                                : <Icon fontSize={27} color="#38b000" icon="mingcute:check-fill" />))}
+                                </TableCell>
                                 <TableCell>
                                     <img src={piece.imageUrl} alt={piece.name} width={70} height={70} />
                                 </TableCell>
@@ -109,6 +118,9 @@ export default function PiecesTable({
                                 </TableCell>
                                 <TableCell>
                                     <Typography>{piece.quantity}</Typography>
+                                </TableCell>
+                                <TableCell>
+                                    <Typography>{piece.quantityHave}</Typography>
                                 </TableCell>
                             </TableRow>
                         ))}

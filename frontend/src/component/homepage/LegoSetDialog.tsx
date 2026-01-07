@@ -39,6 +39,7 @@ export default function LegoSetDialog({
                             <Box display="flex" flexDirection="column">
                                 <Typography variant="h5">{legoSet?.name}</Typography>
                                 <Typography>Theme: {legoSet?.theme.name}</Typography>
+                                <Typography>Code: {legoSet?.legoCode}</Typography>
                                 <Typography>Year: {legoSet?.year}</Typography>
                                 <Typography>Pieces: {"..."}</Typography>
                             </Box>

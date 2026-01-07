@@ -28,6 +28,7 @@ export interface LegoPiece {
     imageUrl?: string;
     color?: LegoColor;
     quantity: number;
+    quantityHave?: number;
     isSpare: boolean;
     legoSets: LegoSet[];
 }

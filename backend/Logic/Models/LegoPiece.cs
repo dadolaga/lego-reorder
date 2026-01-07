@@ -29,6 +29,9 @@ namespace Logic.Models {
         [JsonPropertyName("quantity")]
         public uint Quantity { get; set; }
 
+        [JsonPropertyName("quantityHave")]
+        public uint? QuantityHave { get; set; }
+
         [JsonPropertyName("isSpare")]
         public bool isSpare { get; set; }
 
