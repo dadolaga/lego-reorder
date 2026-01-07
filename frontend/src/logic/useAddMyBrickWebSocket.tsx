@@ -83,6 +83,28 @@ export function useAddMyBrickWS() {
                         case 20:
                             setPiecesQuantityHave(data.data as SetPieceQuantityHave[]);
                             break;
+
+                        case 21:
+                            setPiecesQuantityHave((values) => {
+                                let found: boolean = false;
+                                const updatedPiece = data.data as SetPieceQuantityHave;
+                                const newArray = [...values!];
+
+                                for(const piece of newArray) {
+                                    if(piece.pieceId === updatedPiece.pieceId) {
+                                        found = true;
+                                        piece.quantityHave = updatedPiece.quantityHave;
+                                    }
+                                }
+
+                                if(!found) {
+                                    newArray.push(updatedPiece);
+                                }
+                                
+                                return newArray;
+                            });
+                            break;
+
                         
                         default:
                             console.error(`Unknown code: ${data.code}, message: ${data.message}`);

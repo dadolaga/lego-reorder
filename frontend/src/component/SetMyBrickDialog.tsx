@@ -87,8 +87,6 @@ export default function SetMyBrick({
             newValues[pieceQuantity.pieceId] = pieceQuantity.quantityHave;
         }
 
-        console.log("Update Values", newValues, piecesQuantityHave);
-
         setValues(newValues);
 
     }, [piecesQuantityHave])
