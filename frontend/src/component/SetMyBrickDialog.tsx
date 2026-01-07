@@ -219,6 +219,7 @@ export default function SetMyBrick({
                                 <TableHead>
                                     <TableRow>
                                         <TableCell width={100}></TableCell>
+                                        <TableCell>Code</TableCell>
                                         <TableCell>Name</TableCell>
                                         <TableCell>Color</TableCell>
                                         <TableCell sx={{ textAlign: "center" }} width={150}>Qta</TableCell>
@@ -240,6 +241,9 @@ export default function SetMyBrick({
                                             <TableCell>
                                                 {/* eslint-disable-next-line @next/next/no-img-element*/}
                                                 <img src={piece.imageUrl} alt={piece.name} width={100} height={100} />
+                                            </TableCell>
+                                            <TableCell>
+                                                <Typography>{piece.legoId}</Typography>
                                             </TableCell>
                                             <TableCell>
                                                 <Typography>{piece.name}</Typography>
