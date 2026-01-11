@@ -34,7 +34,7 @@ namespace WebApplication {
         public DatabaseConfig Database { get; set; }
 
         [JsonPropertyName("lego-api")]
-        public LegoApiConfig legoApiConfig { get; set; }
+        public LegoApiConfig LegoApiConfig { get; set; }
     }
 
     internal class DatabaseConfig {

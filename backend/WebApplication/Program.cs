@@ -14,8 +14,7 @@ namespace WebApplication {
             MyLogger.Log.Init();
 
             InitializeDatabase();
-
-            LegoInitializer.Init();
+            InitializeLegoApi();
 
             InitializeApi();
         }
@@ -28,6 +27,10 @@ namespace WebApplication {
                 password: ProgramConfig.Config.Database.Password);
         }
 
+        private static void InitializeLegoApi() {
+            LegoInitializer.Init(ProgramConfig.Config.LegoApiConfig.Token);
+        }
+
         private static void InitializeApi() {
             var builder = Microsoft.AspNetCore.Builder.WebApplication.CreateBuilder();
 
@@ -37,7 +40,7 @@ namespace WebApplication {
             builder.Services.AddCors(options => {
                 options.AddPolicy(name: "AllowSpecificOrigin",
                         policy => {
-                            policy.WithOrigins("http://localhost:3000")
+                            policy.WithOrigins("*")
                             .AllowAnyHeader()
                             .AllowAnyMethod();
                         });
