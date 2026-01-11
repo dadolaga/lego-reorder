@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "application", "application\application.csproj", "{A734BDDF-361C-4B51-987D-07CC33E6698E}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApplication", "WebApplication\WebApplication.csproj", "{40DBBF94-FD41-49E7-8317-6D965F5E30F8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyLogger", "Logger\MyLogger.csproj", "{21468DA1-63F7-41E1-993D-13E04FA7C37B}"
@@ -13,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Database", "Database\Databa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LegoApi", "LegoApi\LegoApi.csproj", "{0A6A5DA7-3337-424B-87C6-D3C3EB5B20A8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logic", "Logic\Logic.csproj", "{1FF70582-53DE-4356-B90A-F5B5C8A96CCA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Logic", "Logic\Logic.csproj", "{1FF70582-53DE-4356-B90A-F5B5C8A96CCA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,10 +19,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A734BDDF-361C-4B51-987D-07CC33E6698E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A734BDDF-361C-4B51-987D-07CC33E6698E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A734BDDF-361C-4B51-987D-07CC33E6698E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A734BDDF-361C-4B51-987D-07CC33E6698E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{40DBBF94-FD41-49E7-8317-6D965F5E30F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{40DBBF94-FD41-49E7-8317-6D965F5E30F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40DBBF94-FD41-49E7-8317-6D965F5E30F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
