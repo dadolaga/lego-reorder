@@ -8,7 +8,7 @@ namespace Database {
 
     public class DatabaseInitializer {
         public static void ReadFromJson() {
-            string jsonPath = Path.Combine(Path.GetDirectoryName(Directory.GetCurrentDirectory()), "appsettings.json");
+            string jsonPath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
 
             JsonInitializer? json = JsonSerializer.Deserialize<JsonInitializer>(File.ReadAllText(jsonPath));
 
