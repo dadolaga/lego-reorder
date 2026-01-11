@@ -1,9 +1,42 @@
 import { LegoPiece, LegoSet } from "@/utilities/type";
-import { Badge, Box, Button, Dialog, DialogContent, DialogTitle, Typography } from "@mui/material";
+import { Box, Button, Dialog, DialogContent, DialogTitle, Typography } from "@mui/material";
 import PiecesTable from "../PiecesTable";
 import { useCallback, useEffect, useState } from "react";
 import SetMyBricksDialog from "../SetMyBrickDialog";
 import { getPieces } from "@/utilities/request";
+import { getTextColorFromBackground } from "@/utilities/utils";
+
+interface State {
+    name: string,
+    color: string
+}
+
+const STATES: { [key: string]: State } = {
+    inventory_pending: {
+        name: "inventory pending",
+        color: "#bcb8b1"
+    },
+    review_ongoing: {
+        name: "Reviewing...",
+        color: "#ffd60a"
+    },
+    parts_missing: {
+        name: "Parts missing",
+        color: "#f44336"
+    },
+    ready_to_build: {
+        name: "Ready to build",
+        color: "#4caf50"
+    },
+    builded: {
+        name: "Builded",
+        color: "#2196f3"
+    },
+    loading: {
+        name: "...",
+        color: "#000000"
+    }
+}
 
 interface IProps {
     legoSet?: LegoSet,
@@ -16,6 +49,7 @@ export default function LegoSetDialog({
 }: IProps) {
     const [showAddMyBrick, setShowAddMyBrick] = useState<boolean>(false);
     const [pieces, setPieces] = useState<LegoPiece[]>([]);
+    const [state, setState] = useState<State>(STATES.loading);
 
     useEffect(() => {
         if (legoSet === undefined)
@@ -38,6 +72,25 @@ export default function LegoSetDialog({
         setShowAddMyBrick(false);
     }, []);
 
+    useEffect(() => {
+        if (pieces.length === 0)
+            return;
+
+        console.log(pieces);
+
+        if (pieces.every(piece => piece.quantityHave !== null)
+            && pieces.every(piece => piece.quantityHave !== undefined && piece.quantityHave >= piece.quantity))
+            setState(STATES.ready_to_build);
+        else if (pieces.every(piece => piece.quantityHave === null))
+            setState(STATES.inventory_pending);
+        else if (pieces.every(piece => piece.quantityHave !== null)
+            && pieces.some(piece => piece.quantityHave !== undefined && piece.quantityHave < piece.quantity))
+            setState(STATES.parts_missing);
+        else
+            setState(STATES.review_ongoing);
+
+    }, [pieces])
+
     return (
         <Dialog fullWidth maxWidth="lg" sx={{ "& .MuiPaper-root": { height: "100%" } }} open={legoSet !== undefined} onClose={onClose}>
             {showAddMyBrick && <SetMyBricksDialog legoSet={showAddMyBrick ? legoSet : undefined} onClose={hideAddMyBricksDialog} />}
@@ -46,9 +99,10 @@ export default function LegoSetDialog({
                 <Box sx={{ height: "100%", overflowY: "auto" }} display="flex" flexDirection="row" gap={2}>
                     <Box width="100%" display="flex" flexDirection="column" justifyContent="space-between">
                         <Box width="100%" display="flex" flexDirection="column" gap={1}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
                             {legoSet && <img style={{ width: "100%", height: 400, objectFit: "cover" }} src={legoSet!.imageUrl} alt={legoSet!.name} />}
-                            <Box sx={{ backgroundColor: "red" }} display="flex" justifyContent="center" p={1.5}>
-                                <Typography>- STATE -</Typography>
+                            <Box sx={{ backgroundColor: state.color }} display="flex" justifyContent="center" p={1.5}>
+                                <Typography color={getTextColorFromBackground(state.color)} fontWeight="bold">{state.name}</Typography>
                             </Box>
                             <Box display="flex" flexDirection="column">
                                 <Typography variant="h5">{legoSet?.name}</Typography>
@@ -62,11 +116,9 @@ export default function LegoSetDialog({
                             </Box>
                         </Box>
                         <Box p="0px 32px" display="flex" flexDirection="column" gap={1}>
-                            <Badge badgeContent={4} color="secondary">
-                                <Button fullWidth variant="contained" onClick={showAddMyBricksDialog}>
-                                    Add my bricks
-                                </Button>
-                            </Badge>
+                            <Button fullWidth variant="contained" onClick={showAddMyBricksDialog}>
+                                Add my bricks
+                            </Button>
                         </Box>
                     </Box>
                     <Box width="100%">

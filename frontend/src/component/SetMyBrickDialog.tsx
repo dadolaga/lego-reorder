@@ -21,6 +21,8 @@ export default function SetMyBrick({
     onClose,
 }: IProps) {
     const pieceTextRef = useRef<Map<number, HTMLInputElement>>(new Map());
+    const colorInputRef = useRef<HTMLInputElement>(null);
+    const nextPageRef = useRef<HTMLButtonElement>(null);
 
     const { run,
         close: closeWS,
@@ -37,7 +39,39 @@ export default function SetMyBrick({
     const [selectedColor, setSelectedColor] = useState<LegoColor[]>([]);
     const [activePieceId, setActivePieceId] = useState<number>();
 
+    const [automaticChangePage, setAutomaticChangePage] = useState<boolean>(false);
+
     const [pieces, setPieces] = useState<LegoPiece[]>([]);
+
+    const moveToNextNumber = useCallback((currentElement?: HTMLInputElement) => {
+        const inputs: HTMLInputElement[] = [...document.querySelectorAll<HTMLInputElement>(".quantity-have-field div input")];
+
+        console.log(inputs);
+
+        inputs.forEach((field, index) => {
+            if (currentElement === undefined || field === currentElement) {
+                setTimeout(() => {
+                    let timeoutIndex = index + 1;
+                    let input = inputs[timeoutIndex];
+
+                    // Jump all disabled input
+                    while (input && input.disabled) {
+                        timeoutIndex++;
+                        input = inputs[timeoutIndex];
+                    }
+
+                    if (input) {
+                        input.focus();
+                    } else if ((page + 1) * TABLE_SIZE < piecesCount) {
+                        setPage(page + 1);
+                        setAutomaticChangePage(true);
+                    } else {
+                        colorInputRef.current?.focus();
+                    }
+                }, 10);
+            }
+        });
+    }, [page, piecesCount]);
 
     useEffect(() => {
         if (legoSet === undefined)
@@ -71,10 +105,16 @@ export default function SetMyBrick({
         }).then(pieces => {
             setPieces(pieces.data);
             setPiecesCount(pieces.count);
+
+            if (automaticChangePage) {
+                setAutomaticChangePage(false);
+
+                setTimeout(() => moveToNextNumber(), 100);
+            }
         }).finally(() => {
             setLoading(false);
         });
-    }, [legoSet, page, selectedColor]);
+    }, [automaticChangePage, legoSet, moveToNextNumber, page, selectedColor]);
 
     useEffect(() => {
         if (piecesQuantityHave === null)
@@ -101,8 +141,6 @@ export default function SetMyBrick({
     const colorSelectedChange = useCallback((event: ChangeEvent<HTMLInputElement> | (Event & { target: { value: LegoColor[]; name: string; }; })) => {
         const clickedColorId: number = parseInt(typeof event.target.value[event.target.value.length - 1] === "string" ? event.target.value[event.target.value.length - 1] as string : "0");
 
-        console.log(clickedColorId);
-
         setSelectedColor((selectedColor) => {
             let removed = false
             const newSelectedColor: LegoColor[] = [];
@@ -122,6 +160,8 @@ export default function SetMyBrick({
 
             return newSelectedColor;
         });
+
+        setPage(0);
 
     }, [colors]);
 
@@ -148,26 +188,9 @@ export default function SetMyBrick({
         if (event.key === "Enter") {
             sendPersonalQuantity(piece.databaseId!, values[piece.databaseId!]!);
 
-            const inputs: HTMLInputElement[] = [...document.querySelectorAll<HTMLInputElement>(".quantity-have-field div input")];
-
-            inputs.forEach((field, index) => {
-                if (field === event.target) {
-                    setTimeout(() => {
-                        let timeoutIndex = index + 1;
-                        let input = inputs[timeoutIndex];
-
-                        // Jump all disabled input
-                        while (input.disabled) {
-                            timeoutIndex++;
-                            input = inputs[timeoutIndex];
-                        }
-
-                        input.focus();
-                    }, 10);
-                }
-            });
+            moveToNextNumber(event.target as HTMLInputElement);
         }
-    }, [sendPersonalQuantity, values]);
+    }, [moveToNextNumber, sendPersonalQuantity, values]);
 
     const editValueButtonHandler = useCallback((piece: LegoPiece) => () => {
         setValues((values) => {
@@ -196,6 +219,7 @@ export default function SetMyBrick({
                         <FormControl sx={{ m: 1, width: 300 }} size="small">
                             <InputLabel id="multi-color-select">Color</InputLabel>
                             <Select
+                                inputRef={colorInputRef}
                                 labelId="multi-color-select"
                                 size="small"
                                 multiple
@@ -229,7 +253,7 @@ export default function SetMyBrick({
                                 <TableBody>
                                     {selectedColor.length === 0 &&
                                         <TableRow>
-                                            <TableCell sx={{ border: "none" }} colSpan={5}><Typography align="center" fontStyle="italic" color="textDisabled">Select color...</Typography></TableCell>
+                                            <TableCell sx={{ border: "none" }} colSpan={6}><Typography align="center" fontStyle="italic" color="textDisabled">Select color...</Typography></TableCell>
                                         </TableRow>
                                     }
                                     {!loading && pieces.map((piece) => (
@@ -293,6 +317,11 @@ export default function SetMyBrick({
                             rowsPerPage={TABLE_SIZE}
                             page={page}
                             onPageChange={handleChangePage}
+                            slotProps={{
+                                actions: {
+                                    nextButton: { ref: nextPageRef, disableFocusRipple: false, disableRipple: false }
+                                }
+                            }}
                         />
                     </Paper>
                 </Box>

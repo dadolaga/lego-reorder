@@ -1,4 +1,8 @@
-export function getTextColorFromBackground(hexColorValue: number): 'white' | 'black' {
+export function getTextColorFromBackground(hexColorValue: number | string): 'white' | 'black' {
+    if (typeof hexColorValue === 'string') {
+        hexColorValue = parseInt(hexColorValue.replace('#', ''), 16);
+    }
+
     const r = (hexColorValue >> 16) & 0xFF;
     const g = (hexColorValue >> 8) & 0xFF;
     const b = hexColorValue & 0xFF;
