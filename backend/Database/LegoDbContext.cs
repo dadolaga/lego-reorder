@@ -9,8 +9,6 @@ using System.Threading.Tasks;
 
 namespace Database {
     public class LegoDbContext : DbContext {
-        internal static string ConnectionString { set; private get; }
-
         public DbSet<LegoSetDb> Sets { get; set; }
         public DbSet<LegoPieceDb> Pieces { get; set; }
         public DbSet<LegoSetPieceDb> SetPieces { get; set; }
@@ -19,7 +17,7 @@ namespace Database {
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
             try {
-                optionsBuilder.UseMySql(connectionString: ConnectionString, ServerVersion.AutoDetect(ConnectionString))
+                optionsBuilder.UseMySql(connectionString: DatabaseInitializer.ConnectionString, ServerVersion.AutoDetect(DatabaseInitializer.ConnectionString))
                     .LogTo(MyLogger.Log.Information, LogLevel.Information)
                     .EnableSensitiveDataLogging();
             } catch (Exception ex) {

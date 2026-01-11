@@ -1,35 +1,21 @@
 ﻿using System.Text.Json;
 
 namespace Database {
-    internal class JsonInitializer {
-        public string ConnectionString { get; set;}
-
-    }
-
     public class DatabaseInitializer {
-        public static void ReadFromJson() {
-            string jsonPath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
+        internal static string ConnectionString { get; private set; }
 
-            JsonInitializer? json = JsonSerializer.Deserialize<JsonInitializer>(File.ReadAllText(jsonPath));
+        public static void Init(string server, string name, string user, string password, int port = 3306) {
+            MyLogger.Log.Information("Initialize DB");
 
-            if(json == null) { 
-                MyLogger.Log.Fatal("Database json initializer file not read");
-                return;
-            }
-
-            LegoDbContext.ConnectionString = json.ConnectionString;
-        }
-
-        public static void Init() {
-            MyLogger.Log.Information("Initalize DB");
+            ConnectionString = $"Server={server};Port={port};Database={name};Uid={user};Pwd={password};";
 
             using (var db = new LegoDbContext()) {
                 try {
                     db.Database.EnsureCreated();
 
-                    MyLogger.Log.Information("Database initalize correctly");
+                    MyLogger.Log.Information("Database Initialize correctly");
                 } catch (Exception ex) {
-                    MyLogger.Log.Error($"Database creation trows an error: {ex.Message}");
+                    MyLogger.Log.Error($"Database creation throws an error: {ex.Message}");
                 }
             }
         }

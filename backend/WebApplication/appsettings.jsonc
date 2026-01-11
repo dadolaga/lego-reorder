@@ -1,0 +1,12 @@
+{
+  "database": {
+    "server": "", // Set your database address
+    "name": "test_lego",
+    "user": "user", // Set your database user
+    "password": "password" // Set your database password
+    //"port": 3306
+  },
+  "lego-api": {
+    "token": "TOKEN" // Set your lego rebrickable API token
+  }
+}

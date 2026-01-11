@@ -9,6 +9,8 @@ using WebApplication.WebSocketController;
 namespace WebApplication {
     public class Program {
         public static void Main(string[] args) {
+            ProgramConfig.ReadConfig();
+
             MyLogger.Log.Init();
 
             InitializeDatabase();
@@ -19,9 +21,11 @@ namespace WebApplication {
         }
 
         private static void InitializeDatabase() {
-            DatabaseInitializer.ReadFromJson();
-
-            DatabaseInitializer.Init();
+            DatabaseInitializer.Init(
+                server: ProgramConfig.Config.Database.Server,
+                name: ProgramConfig.Config.Database.Name,
+                user: ProgramConfig.Config.Database.User,
+                password: ProgramConfig.Config.Database.Password);
         }
 
         private static void InitializeApi() {
