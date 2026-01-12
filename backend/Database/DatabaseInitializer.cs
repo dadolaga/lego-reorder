@@ -11,6 +11,7 @@ namespace Database {
 
             using (var db = new LegoDbContext()) {
                 try {
+                    MyLogger.Log.Debug($"Try to connect to \"{server}:{port}\" DB: {name}, with user \"{user}\"");
                     db.Database.EnsureCreated();
 
                     MyLogger.Log.Information("Database Initialize correctly");

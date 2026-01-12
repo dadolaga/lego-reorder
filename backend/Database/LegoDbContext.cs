@@ -21,7 +21,7 @@ namespace Database {
                     .LogTo(MyLogger.Log.Information, LogLevel.Information)
                     .EnableSensitiveDataLogging();
             } catch (Exception ex) {
-                MyLogger.Log.Fatal($"Connection to DB error: {ex.Message}");
+                MyLogger.Log.Fatal($"Connection to DB error: {ex.Message}", ex);
                 Environment.Exit(1);
             }
         }
