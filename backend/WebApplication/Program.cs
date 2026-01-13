@@ -1,8 +1,6 @@
 
 using Database;
 using LegoApi;
-using MyLogger;
-using Serilog;
 using System.Net.WebSockets;
 using WebApplication.WebSocketController;
 
@@ -58,6 +56,8 @@ namespace WebApplication {
 
             app.UseWebSockets();
             app.Use(async (HttpContext context, Func<Task> next) => {
+                MyLogger.Log.Debug($"Client send request to: ({context.Request.Method}) {context.Request.Path}");
+
                 if (context.Request.Path == "/ws/AddNewLegoSet") {
                     if (context.WebSockets.IsWebSocketRequest) {
                         using (WebSocket webSocket = await context.WebSockets.AcceptWebSocketAsync()) {
