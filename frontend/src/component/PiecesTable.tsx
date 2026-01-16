@@ -117,7 +117,7 @@ export default function PiecesTable({
                                     <Chip sx={{ backgroundColor: `#${toHex(piece.color?.value, 6)}`, "& span": { color: getTextColorFromBackground(piece.color!.value!) } }} label={piece.color?.name} ></Chip>
                                 </TableCell>
                                 <TableCell>
-                                    <Typography>{piece.quantity}</Typography>
+                                    <Typography>{piece.quantity}{piece.quantitySpare ? ` + ${piece.quantitySpare}` : ""}</Typography>
                                 </TableCell>
                                 <TableCell>
                                     <Typography>{piece.quantityHave}</Typography>

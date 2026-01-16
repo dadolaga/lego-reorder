@@ -224,15 +224,15 @@ namespace WebApplication.WebSocketController {
                 dbSetPiece = new LegoSetPieceDb {
                     SetId = legoSetDb.Id,
                     PieceId = legoPieceDb.Id,
-                    Quantity = !piece.isSpare ? piece.Quantity : 0,
+                    Quantity = piece.Quantity,
                     QuantityHave = null,
-                    SpareQuantity = piece.isSpare ? piece.Quantity : 0
+                    SpareQuantity = piece.QuantitySpare
                 };
 
                 database.Add(dbSetPiece);
                 database.SaveChanges();
-            } else if ((!piece.isSpare && dbSetPiece.Quantity == 0) || (piece.isSpare && dbSetPiece.SpareQuantity == 0)) {
-                if (piece.isSpare)
+            } else if ((piece.Quantity != 0 && dbSetPiece.Quantity == 0) || (piece.QuantitySpare != 0 && dbSetPiece.SpareQuantity == 0)) {
+                if (piece.QuantitySpare != 0)
                     dbSetPiece.SpareQuantity = piece.Quantity;
                 else
                     dbSetPiece.Quantity = piece.Quantity;

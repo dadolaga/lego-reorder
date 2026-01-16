@@ -29,11 +29,11 @@ namespace Logic.Models {
         [JsonPropertyName("quantity")]
         public uint Quantity { get; set; }
 
+        [JsonPropertyName("quantitySpare")]
+        public uint QuantitySpare { get; set; }
+
         [JsonPropertyName("quantityHave")]
         public uint? QuantityHave { get; set; }
-
-        [JsonPropertyName("isSpare")]
-        public bool isSpare { get; set; }
 
         [JsonPropertyName("legoSets")]
         public ICollection<LegoSet> LegoSets { get; set; }

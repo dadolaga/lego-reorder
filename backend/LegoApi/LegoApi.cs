@@ -50,7 +50,7 @@ namespace LegoApi {
                                         Name = theme.Name
                                     }
                                 };
-                            } ).ToList();
+                            }).ToList();
 
                         return legoSetResult.AsEnumerable();
                     } catch (HttpRequestException e) {
@@ -96,8 +96,8 @@ namespace LegoApi {
                                 ApiId = $"{p.Id}",
                                 Name = p.Part.Name,
                                 ImageUrl = p.Part.PartImgUrl,
-                                Quantity = (uint)p.Quantity,
-                                isSpare = p.IsSpare,
+                                Quantity = !p.IsSpare ? (uint)p.Quantity : 0,
+                                QuantitySpare = p.IsSpare ? (uint)p.Quantity : 0,
                                 Color = new IN.LegoColor {
                                     ApiId = $"{p.Color.Id}",
                                     Name = p.Color.Name,

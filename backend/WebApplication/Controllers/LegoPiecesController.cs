@@ -44,8 +44,8 @@ namespace WebApplication.Controllers {
                     Value = p.Piece.Color.Value,
                     Trasparent = false
                 },
-                isSpare = p.SpareQuantity != 0,
-                Quantity = p.SpareQuantity != 0 ? p.SpareQuantity : p.Quantity,
+                Quantity = p.Quantity,
+                QuantitySpare = p.SpareQuantity,
                 QuantityHave = p.QuantityHave
             });
 
