@@ -1,4 +1,5 @@
 import { BaseWebSocket, LegoPiece, LegoSet } from "@/utilities/type";
+import createWebSocket from "@/utilities/webSocket";
 import { useSnackbar } from "notistack";
 import { useCallback, useEffect, useState } from "react";
 
@@ -25,7 +26,7 @@ export function useAddNewLegoWS() {
             return new Promise((resolve, reject) => {
                 let state: "INIT" | "CONNECT" | "ADD" | "ERROR" = "INIT";
                 let uuid: string | null = null;
-                const socket = new WebSocket("ws://localhost:5196/ws/AddNewLegoSet");
+                const socket = createWebSocket("AddNewLegoSet");
                 setSendTest("");
                 setWebSocket(() => socket);
                 setUpdateMessage("Attendo che mi arrivi l'UUID");

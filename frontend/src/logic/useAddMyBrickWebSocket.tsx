@@ -1,4 +1,5 @@
 import { BaseWebSocket, LegoSet } from "@/utilities/type";
+import createWebSocket from "@/utilities/webSocket";
 import { useSnackbar } from "notistack";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -63,7 +64,7 @@ export function useAddMyBrickWS() {
     return {
         run: useCallback((lego: LegoSet) => {
             let uuid: string | null = null;
-            websocket.current = new WebSocket("ws://localhost:5196/ws/AddMyBrick");
+            websocket.current = createWebSocket("AddMyBrick");
             console.log("Web socket run");
             setSendTest("");
             setLoading(true);
