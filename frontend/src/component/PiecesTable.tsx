@@ -4,6 +4,7 @@ import { getTextColorFromBackground, toHex } from "@/utilities/utils";
 import { Icon } from "@iconify/react";
 import { Chip, LinearProgress, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, Typography } from "@mui/material";
 import { ChangeEvent, MouseEvent, RefObject, useCallback, useEffect, useImperativeHandle, useState } from "react";
+import PieceInformationDialog from "./PieceInformationDialog";
 
 export interface PiecesTableRef {
     reloadPieces: () => void;
@@ -24,6 +25,7 @@ export default function PiecesTable({
     const [page, setPage] = useState<number>(0);
     const [rowsPerPage, setRowsPerPage] = useState<number>(25);
     const [order, setOrder] = useState<OrderOptions>({ name: "color", direction: "asc" });
+    const [selectedPiece, setSelectedPiece] = useState<LegoPiece | undefined>(undefined);
 
     const reloadPieces = useCallback(() => {
         setLoading(true);
@@ -75,8 +77,17 @@ export default function PiecesTable({
         }
     }, [order]);
 
+    const imageClickHandler = useCallback((piece: LegoPiece) => () => {
+        setSelectedPiece(piece);
+    }, []);
+
+    const closePieceInformationHandler = useCallback(() => {
+        setSelectedPiece(undefined);
+    }, []);
+
     return (
         <Paper sx={{ height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+            <PieceInformationDialog piece={selectedPiece} onClose={closePieceInformationHandler} />
             <TableContainer sx={{ height: "100%", overflowY: "auto", overflowX: "hidden" }}>
                 <Table stickyHeader>
                     <TableHead>
@@ -94,7 +105,7 @@ export default function PiecesTable({
                                     Qta
                                 </TableSortLabel>
                             </TableCell>
-                            <TableCell sx={{minWidth: "40px"}}>I have</TableCell>
+                            <TableCell sx={{ minWidth: "40px" }}>I have</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -109,7 +120,7 @@ export default function PiecesTable({
                                 </TableCell>
                                 <TableCell>
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img src={piece.imageUrl} alt={piece.name} width={70} height={70} />
+                                    <img src={piece.imageUrl} alt={piece.name} width={70} height={70} onClick={imageClickHandler(piece)} />
                                 </TableCell>
                                 <TableCell>
                                     <Typography>{piece.name}</Typography>
