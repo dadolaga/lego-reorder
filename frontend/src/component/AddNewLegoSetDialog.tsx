@@ -78,6 +78,14 @@ export default function AddNewLegoSetDialog({
         }
     }, [checkPiece]);
 
+    useEffect(() => {
+        if (!open) 
+            return;
+        
+        setLegoSets([]);
+        setLegoSearch("");
+    }, [open])
+
     const editValueHandler = useCallback((event: ChangeEvent<HTMLInputElement>) => {
         setLegoSearch(event.target.value);
     }, []);
