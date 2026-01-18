@@ -1,6 +1,6 @@
 import { LegoColor, LegoPiece, LegoSet } from "@/utilities/type";
 import { toHex, getTextColorFromBackground } from "@/utilities/utils";
-import { Box, Button, Checkbox, Chip, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, LinearProgress, MenuItem, OutlinedInput, Paper, Select, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Typography } from "@mui/material";
+import { Box, Button, Checkbox, Chip, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, LinearProgress, MenuItem, OutlinedInput, Paper, Select, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Typography, useMediaQuery, useTheme } from "@mui/material";
 import { ChangeEvent, useCallback, useEffect, useState, MouseEvent, KeyboardEvent, useRef } from "react";
 import NumberTextField from "./base/NumberTextFiled";
 import { useAddMyBrickWS } from "@/logic/useAddMyBrickWebSocket";
@@ -23,6 +23,10 @@ export default function SetMyBrick({
     legoSet,
     onClose,
 }: IProps) {
+    const theme = useTheme();
+    const isSmall = useMediaQuery(theme.breakpoints.down("md"));
+    const isLaptop = useMediaQuery(theme.breakpoints.down("xl"));
+
     const pieceTextRef = useRef<Map<number, HTMLInputElement>>(new Map());
     const colorInputRef = useRef<HTMLInputElement>(null);
     const nextPageRef = useRef<HTMLButtonElement>(null);
@@ -99,7 +103,7 @@ export default function SetMyBrick({
         onClose();
 
         if (!closeCalled) {
-            enqueueSnackbar("Inspected error in add my brick procedure", {variant: "error"});
+            enqueueSnackbar("Inspected error in add my brick procedure", { variant: "error" });
         }
 
     }, [closeCalled, onClose, wsState]);
@@ -203,10 +207,10 @@ export default function SetMyBrick({
         if (event.key === "Enter" || (event.key === "Tab" && !event.shiftKey)) {
             event.preventDefault();
 
-            if(values[piece.databaseId!] !== undefined)
+            if (values[piece.databaseId!] !== undefined)
                 sendPersonalQuantity(piece.databaseId!, values[piece.databaseId!]!);
             else
-                enqueueSnackbar("Quantity not set, data not sended", {variant: "warning"});
+                enqueueSnackbar("Quantity not set, data not sended", { variant: "warning" });
 
             moveToNextNumber(event.target as HTMLInputElement);
         }
@@ -231,33 +235,34 @@ export default function SetMyBrick({
     }, [closeWS]);
 
     return (
-        <Dialog fullWidth maxWidth="md" sx={{ "& .MuiDialog-paper": { height: "60%" } }} open={legoSet !== undefined}>
+        <Dialog fullScreen={isSmall} fullWidth maxWidth="md" sx={{ "& .MuiDialog-paper": { height: isLaptop ? "100%" : "60%" } }} open={legoSet !== undefined}>
             {(loading || loadingWS) && <LinearProgress />}
-            <DialogTitle>Add my brick - {legoSet?.name}</DialogTitle>
+            <DialogTitle display="flex" alignItems="center" justifyContent="space-between">
+                <Typography variant="h5">Add my brick - {legoSet?.name}</Typography>
+
+                <FormControl sx={{ m: 1, width: 300 }} size="small">
+                    <InputLabel id="multi-color-select">Color</InputLabel>
+                    <Select
+                        inputRef={colorInputRef}
+                        labelId="multi-color-select"
+                        size="small"
+                        multiple
+                        value={selectedColor}
+                        onChange={colorSelectedChange}
+                        input={<OutlinedInput label="Color" />}
+                        renderValue={selectColorRenderValue}
+                    >
+                        {colors.map((color) => (
+                            <MenuItem key={color.databaseId} value={`${color.databaseId}`}>
+                                <Checkbox checked={selectedColor.filter((c) => c?.databaseId === color.databaseId).length > 0} />
+                                <Chip sx={{ backgroundColor: `#${toHex(color.value, 6)}`, "& span": { color: getTextColorFromBackground(color.value!) } }} label={color.name} ></Chip>
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+            </DialogTitle>
             <DialogContent sx={{ height: "100%" }}>
-                <Box height="100%" display="grid" gridTemplateRows="auto 1fr">
-                    <Box>
-                        <FormControl sx={{ m: 1, width: 300 }} size="small">
-                            <InputLabel id="multi-color-select">Color</InputLabel>
-                            <Select
-                                inputRef={colorInputRef}
-                                labelId="multi-color-select"
-                                size="small"
-                                multiple
-                                value={selectedColor}
-                                onChange={colorSelectedChange}
-                                input={<OutlinedInput label="Color" />}
-                                renderValue={selectColorRenderValue}
-                            >
-                                {colors.map((color) => (
-                                    <MenuItem key={color.databaseId} value={`${color.databaseId}`}>
-                                        <Checkbox checked={selectedColor.filter((c) => c?.databaseId === color.databaseId).length > 0} />
-                                        <Chip sx={{ backgroundColor: `#${toHex(color.value, 6)}`, "& span": { color: getTextColorFromBackground(color.value!) } }} label={color.name} ></Chip>
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Box>
+                <Box height="100%" display="grid" gridTemplateRows="auto">
                     <Paper sx={{ height: "100%", overflowY: "auto", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                         <TableContainer sx={{ height: "100%" }}>
                             <Table stickyHeader>

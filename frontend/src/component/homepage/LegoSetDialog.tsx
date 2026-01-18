@@ -1,5 +1,5 @@
 import { LegoPiece, LegoSet } from "@/utilities/type";
-import { Box, Button, Dialog, DialogContent, DialogTitle, Typography } from "@mui/material";
+import { Box, Button, Dialog, DialogContent, DialogTitle, Typography, useMediaQuery, useTheme } from "@mui/material";
 import PiecesTable from "../PiecesTable";
 import { useCallback, useEffect, useState } from "react";
 import SetMyBricksDialog from "../SetMyBrickDialog";
@@ -47,6 +47,10 @@ export default function LegoSetDialog({
     legoSet,
     onClose,
 }: IProps) {
+    const theme = useTheme();
+    const isExtraLarge = useMediaQuery(theme.breakpoints.up("xl"));
+    const isSmall = useMediaQuery(theme.breakpoints.down("md"));
+
     const [showAddMyBrick, setShowAddMyBrick] = useState<boolean>(false);
     const [pieces, setPieces] = useState<LegoPiece[]>([]);
     const [state, setState] = useState<State>(STATES.loading);
@@ -98,21 +102,27 @@ export default function LegoSetDialog({
             <DialogContent sx={{ height: "100%" }}>
                 <Box sx={{ height: "100%", overflowY: "auto" }} display="flex" flexDirection="row" gap={2}>
                     <Box width="100%" display="flex" flexDirection="column" justifyContent="space-between">
-                        <Box width="100%" display="flex" flexDirection="column" gap={1}>
+                        <Box width="100%" height="100%" display="flex" flexDirection="column" gap={1} overflow="auto">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            {legoSet && <img style={{ width: "100%", height: 400, objectFit: "cover" }} src={legoSet!.imageUrl} alt={legoSet!.name} />}
+                            {legoSet && (<Box sx={{width: "100%", height: "40%", overflow: "hidden", backgroundColor: "red"}}><img style={{ width: "100%", height: "100%", objectFit: "cover"}} src={legoSet!.imageUrl} alt={legoSet!.name} /></Box>)}
                             <Box sx={{ backgroundColor: state.color }} display="flex" justifyContent="center" p={1.5}>
                                 <Typography color={getTextColorFromBackground(state.color)} fontWeight="bold">{state.name}</Typography>
                             </Box>
-                            <Box display="flex" flexDirection="column">
+                            <Box>
                                 <Typography variant="h5">{legoSet?.name}</Typography>
-                                <Typography>Theme: {legoSet?.theme.name}</Typography>
-                                <Typography>Code: {legoSet?.legoCode}</Typography>
-                                <Typography>Year: {legoSet?.year}</Typography>
-                                <br />
-                                <Typography>Pieces: {pieces.length > 0 ? pieces.length : "..."}</Typography>
-                                <Typography>Pieces i have: {pieces.length > 0 ? pieces.reduce((accumulator, piece) => accumulator + (piece.quantityHave && piece.quantityHave > 0 ? 1 : 0), 0) : "..."}</Typography>
-                                <Typography>Number of pieces: {pieces.length > 0 ? pieces.reduce((accumulator, piece) => accumulator + piece.quantity, 0) : "..."}</Typography>
+                                <Box display="flex" flexDirection={isExtraLarge ? "column" : "row"} justifyContent="space-between" width="100%" gap={2}>
+                                    <Box width="100%">
+                                        <Typography>Theme: {legoSet?.theme.name}</Typography>
+                                        <Typography>Code: {legoSet?.legoCode}</Typography>
+                                        <Typography>Year: {legoSet?.year}</Typography>
+                                    </Box>
+                                    <Box width="100%">
+                                        <Typography>Different pieces: {pieces.length > 0 ? pieces.length : "..."}</Typography>
+                                        <Typography>Different pieces i have: {pieces.length > 0 ? pieces.reduce((accumulator, piece) => accumulator + (piece.quantityHave && piece.quantityHave > 0 ? 1 : 0), 0) : "..."}</Typography>
+                                        <Typography>Number of pieces: {pieces.length > 0 ? pieces.reduce((accumulator, piece) => accumulator + piece.quantity, 0) : "..."}</Typography>
+                                        <Typography>Number of pieces i have: {pieces.length > 0 ? pieces.reduce((accumulator, piece) => accumulator + (piece.quantityHave || 0), 0) : "..."}</Typography>
+                                    </Box>
+                                </Box>
                             </Box>
                         </Box>
                         <Box p="0px 32px" display="flex" flexDirection="column" gap={1}>
@@ -121,9 +131,9 @@ export default function LegoSetDialog({
                             </Button>
                         </Box>
                     </Box>
-                    <Box width="100%">
+                    {!isSmall && <Box width="100%">
                         <PiecesTable piecesFilter={{ setId: legoSet?.databaseId }} />
-                    </Box>
+                    </Box>}
                 </Box>
             </DialogContent>
         </Dialog>
