@@ -16,5 +16,5 @@ const baseURL = getBaseUrl();
 
 export const axiosInstance = axios.create({
     baseURL: baseURL,
-    timeout: 1000
+    timeout: 2500
 })
