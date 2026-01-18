@@ -77,7 +77,7 @@ export default function PiecesTable({
 
     return (
         <Paper sx={{ height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-            <TableContainer sx={{ height: "100%" }}>
+            <TableContainer sx={{ height: "100%", overflowY: "auto", overflowX: "hidden" }}>
                 <Table stickyHeader>
                     <TableHead>
                         <TableRow>

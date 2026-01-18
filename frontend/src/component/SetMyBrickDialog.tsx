@@ -200,9 +200,13 @@ export default function SetMyBrick({
     }, [sendActive]);
 
     const keyPressedOnPieceHandler = useCallback((piece: LegoPiece) => (event: KeyboardEvent<HTMLDivElement>) => {
-        event.preventDefault();
-        if (event.key === "Enter" || event.key === "Tab") {
-            sendPersonalQuantity(piece.databaseId!, values[piece.databaseId!]!);
+        if (event.key === "Enter" || (event.key === "Tab" && !event.shiftKey)) {
+            event.preventDefault();
+
+            if(values[piece.databaseId!] !== undefined)
+                sendPersonalQuantity(piece.databaseId!, values[piece.databaseId!]!);
+            else
+                enqueueSnackbar("Quantity not set, data not sended", {variant: "warning"});
 
             moveToNextNumber(event.target as HTMLInputElement);
         }
@@ -221,6 +225,7 @@ export default function SetMyBrick({
     }, []);
 
     const closeHandler = useCallback(() => {
+        setLoading(true);
         closeWS();
         setCloseCalled(true);
     }, [closeWS]);
