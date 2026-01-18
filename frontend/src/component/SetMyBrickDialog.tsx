@@ -6,6 +6,7 @@ import NumberTextField from "./base/NumberTextFiled";
 import { useAddMyBrickWS } from "@/logic/useAddMyBrickWebSocket";
 import { getLegoPieceColorsFromSet, getPieces } from "@/utilities/request";
 import { enqueueSnackbar } from "notistack";
+import PieceInformationDialog from "./PieceInformationDialog";
 
 type ValuesType = { [key: number]: number | undefined };
 
@@ -47,6 +48,7 @@ export default function SetMyBrick({
     const [colors, setColors] = useState<LegoColor[]>([]);
     const [selectedColor, setSelectedColor] = useState<LegoColor[]>([]);
     const [activePieceId, setActivePieceId] = useState<number>();
+    const [selectPieceForInformation, setSelectPieceForInformation] = useState<LegoPiece | undefined>(undefined);
 
     const [automaticChangePage, setAutomaticChangePage] = useState<boolean>(false);
 
@@ -234,8 +236,17 @@ export default function SetMyBrick({
         setCloseCalled(true);
     }, [closeWS]);
 
+    const clickImageHandler = useCallback((piece: LegoPiece) => () => {
+        setSelectPieceForInformation(piece);
+    }, []);
+
+    const closePieceInformationHandler = useCallback(() => {
+        setSelectPieceForInformation(undefined);
+    }, []);
+
     return (
         <Dialog fullScreen={isSmall} fullWidth maxWidth="md" sx={{ "& .MuiDialog-paper": { height: isLaptop ? "100%" : "60%" } }} open={legoSet !== undefined}>
+            <PieceInformationDialog piece={selectPieceForInformation} onClose={closePieceInformationHandler} />
             {(loading || loadingWS) && <LinearProgress />}
             <DialogTitle display="flex" alignItems="center" justifyContent="space-between">
                 <Typography variant="h5">Add my brick - {legoSet?.name}</Typography>
@@ -270,7 +281,6 @@ export default function SetMyBrick({
                                     <TableRow>
                                         <TableCell width={100}></TableCell>
                                         <TableCell>Code</TableCell>
-                                        <TableCell>Name</TableCell>
                                         <TableCell>Color</TableCell>
                                         <TableCell sx={{ textAlign: "center" }} width={150}>Qta</TableCell>
                                         <TableCell width={150}></TableCell>
@@ -290,13 +300,10 @@ export default function SetMyBrick({
                                             }}>
                                             <TableCell>
                                                 {/* eslint-disable-next-line @next/next/no-img-element*/}
-                                                <img src={piece.imageUrl} alt={piece.name} width={100} height={100} />
+                                                <img src={piece.imageUrl} alt={piece.name} width={100} height={100} onClick={clickImageHandler(piece)} />
                                             </TableCell>
                                             <TableCell>
                                                 <Typography>{piece.legoId}</Typography>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Typography>{piece.name}</Typography>
                                             </TableCell>
                                             <TableCell>
                                                 <Chip sx={{ backgroundColor: `#${toHex(piece.color?.value, 6)}`, "& span": { color: getTextColorFromBackground(piece.color!.value!) } }} label={piece.color?.name} ></Chip>

@@ -29,7 +29,7 @@ export default function PieceInformationDialog({
     }, [close]);
 
     return (
-        <Dialog fullWidth maxWidth="sm" open={piece !== undefined}>
+        <Dialog fullWidth maxWidth="sm" open={piece !== undefined} onClose={closeHandler}>
             {loading && <LinearProgress />}
             <DialogTitle>{piece?.name}</DialogTitle>
             <DialogContent sx={{ height: "100%" }}>
