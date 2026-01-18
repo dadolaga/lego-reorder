@@ -1,9 +1,9 @@
 import { getPieces, OrderOptions } from "@/utilities/request";
-import { LegoPiece, LegoSet, PiecesFilter } from "@/utilities/type";
+import { LegoPiece, PiecesFilter } from "@/utilities/type";
 import { getTextColorFromBackground, toHex } from "@/utilities/utils";
 import { Icon } from "@iconify/react";
-import { Box, Chip, LinearProgress, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, Typography } from "@mui/material";
-import { ChangeEvent, MouseEvent, RefObject, use, useCallback, useEffect, useImperativeHandle, useState } from "react";
+import { Chip, LinearProgress, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, Typography } from "@mui/material";
+import { ChangeEvent, MouseEvent, RefObject, useCallback, useEffect, useImperativeHandle, useState } from "react";
 
 export interface PiecesTableRef {
     reloadPieces: () => void;
@@ -108,6 +108,7 @@ export default function PiecesTable({
                                                 : <Icon fontSize={27} color="#38b000" icon="mingcute:check-fill" />))}
                                 </TableCell>
                                 <TableCell>
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img src={piece.imageUrl} alt={piece.name} width={70} height={70} />
                                 </TableCell>
                                 <TableCell>

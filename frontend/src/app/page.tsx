@@ -1,6 +1,6 @@
 "use client"
 
-import { Box, Button, Card, CardActions, CardContent, CardMedia, Grid, Paper, Typography } from "@mui/material";
+import { Box, Button, Grid, Paper, Typography } from "@mui/material";
 import LegoCard, { IButtonList } from "@/component/homepage/LegoCard";
 import AddNewLegoSetDialog from "@/component/AddNewLegoSetDialog";
 import { useEffect, useState } from "react";

@@ -90,7 +90,7 @@ export function useAddNewLegoWS() {
                     resolve("ok");
                 };
             });
-        }, []),
+        }, [enqueueSnackbar]),
         updateMessage,
         checkPiece,
         sendMessage: setSendTest,

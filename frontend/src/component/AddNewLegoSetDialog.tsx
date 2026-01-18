@@ -181,7 +181,7 @@ function LegoPieceCorrectorDialog({
         const data: BaseWebSocket<LegoPiece[]> = {
             code: 0,
             message: "Update piece code",
-            data: pieces.map((piece, index) => ({
+            data: pieces.map((piece) => ({
                 ...piece,
                 legoId: null
             }))
