@@ -4,7 +4,7 @@ import { memo, useCallback } from "react"
 
 interface IProps extends Omit<TextFieldProps, 'variant'> {
     value?: number;
-    onValueChange?: (value: number) => void;
+    onValueChange?: (value: number | undefined) => void;
 }
 
 const NumberTextField = memo((props: IProps) => {
@@ -13,14 +13,15 @@ const NumberTextField = memo((props: IProps) => {
 
         if (props.onValueChange) {
             if(RegExp(/^\d*$/).test(value)) {
-                props.onValueChange(parseInt(value))
+                const intValue = parseInt(value);
+                props.onValueChange(!Number.isNaN(intValue) ? intValue : undefined);
             }
         }
         
     }, [props])
 
     return (
-        <TextField {...props} value={`${props.value || ""}`} onChange={onChangeHandler}/>
+        <TextField {...props} value={`${(props.value !== undefined && props.value !== null) ? `${props.value}` : ""}`} onChange={onChangeHandler}/>
     )
 })
 

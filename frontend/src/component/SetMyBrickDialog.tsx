@@ -130,7 +130,7 @@ export default function SetMyBrick({
 
     }, [piecesQuantityHave])
 
-    const insertTextHandler = useCallback((piece: LegoPiece) => (value: number) => {
+    const insertTextHandler = useCallback((piece: LegoPiece) => (value: number | undefined) => {
         setValues((values) => {
             const newValues = [...values];
             newValues[piece.databaseId!] = value;
