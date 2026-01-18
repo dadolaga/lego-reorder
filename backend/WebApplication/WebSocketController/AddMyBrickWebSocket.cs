@@ -52,14 +52,16 @@ namespace WebApplication.WebSocketController {
         }
 
         private static async Task SendToAll<T>(int legoSetId, Models.BaseWebSocket<T> message) {
-            var webSocketList = clients.GetAllWebSocket(legoSetId);
+            var clientList = clients.GetAllClient(legoSetId);
 
-            if (webSocketList != null) {
-                foreach (var webSocket in webSocketList) {
-                    if (webSocket.State == WebSocketState.Open) {
-                        await SendAsync(webSocket, message);
+            if (clientList != null) {
+                foreach (var client in clientList) {
+                    if (client.WebSocket.State == WebSocketState.Open) {
+                        await SendAsync(client.WebSocket, message);
                     } else {
                         MyLogger.Log.Warning("Web socket is not in correct state. Removing...");
+
+                        clients.RemoveClient(client.Uuid);
                     }
                 }
             }
@@ -212,7 +214,14 @@ namespace WebApplication.WebSocketController {
             }
         }
 
-        private class Client {
+        internal IEnumerable<Client> GetAllClient(int? legoSetIdFilter = null) {
+            lock (clients) {
+                return clients
+                    .Where(c => (legoSetIdFilter != null ? (c.ActiveSetId == legoSetIdFilter) : true));
+            }
+        }
+
+        internal class Client {
             public string Uuid { get; set; }
             public WebSocket WebSocket { get; set; }
             public int? ActiveSetId { get; set; }

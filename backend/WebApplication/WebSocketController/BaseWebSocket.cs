@@ -104,6 +104,8 @@ namespace WebApplication.WebSocketController {
                 await RunImplemented(uuid, webSocket);
             } catch (WebSocketCloseException ex) {
                 MyLogger.Log.Debug($"Close websocket: {uuid}");
+            } catch (Exception ex) {
+                MyLogger.Log.Error($"Catch general exception: {ex.Message}", ex);
             }
 
             await ClearImplemented(uuid, webSocket);

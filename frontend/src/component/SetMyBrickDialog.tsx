@@ -5,6 +5,9 @@ import { ChangeEvent, useCallback, useEffect, useState, MouseEvent, KeyboardEven
 import NumberTextField from "./base/NumberTextFiled";
 import { useAddMyBrickWS } from "@/logic/useAddMyBrickWebSocket";
 import { getLegoPieceColorsFromSet, getPieces } from "@/utilities/request";
+import { enqueueSnackbar } from "notistack";
+
+type ValuesType = { [key: number]: number | undefined };
 
 interface IProps {
     legoSet?: LegoSet,
@@ -26,15 +29,17 @@ export default function SetMyBrick({
 
     const { run,
         close: closeWS,
+        state: wsState,
         loading: loadingWS,
         selectedPieceId: activePieceOnOtherDevice,
         piecesQuantityHave,
         sendActive,
         sendPersonalQuantity } = useAddMyBrickWS();
     const [page, setPage] = useState<number>(0);
+    const [closeCalled, setCloseCalled] = useState<boolean>(false);
     const [piecesCount, setPiecesCount] = useState<number>(0);
     const [loading, setLoading] = useState<boolean>(false);
-    const [values, setValues] = useState<(number | undefined)[]>([]);
+    const [values, setValues] = useState<ValuesType>([]);
     const [colors, setColors] = useState<LegoColor[]>([]);
     const [selectedColor, setSelectedColor] = useState<LegoColor[]>([]);
     const [activePieceId, setActivePieceId] = useState<number>();
@@ -45,8 +50,6 @@ export default function SetMyBrick({
 
     const moveToNextNumber = useCallback((currentElement?: HTMLInputElement) => {
         const inputs: HTMLInputElement[] = [...document.querySelectorAll<HTMLInputElement>(".quantity-have-field div input")];
-
-        console.log(inputs);
 
         inputs.forEach((field, index) => {
             if (currentElement === undefined || field === currentElement) {
@@ -88,6 +91,18 @@ export default function SetMyBrick({
             setColors(apiColors!);
         });
     }, [legoSet]);
+
+    useEffect(() => {
+        if (wsState === "INIT" || wsState === "CONNECT")
+            return;
+
+        onClose();
+
+        if (!closeCalled) {
+            enqueueSnackbar("Inspected error in add my brick procedure", {variant: "error"});
+        }
+
+    }, [closeCalled, onClose, wsState]);
 
     useEffect(() => {
         if (legoSet === undefined)
@@ -132,7 +147,7 @@ export default function SetMyBrick({
 
     const insertTextHandler = useCallback((piece: LegoPiece) => (value: number | undefined) => {
         setValues((values) => {
-            const newValues = [...values];
+            const newValues = { ...values };
             newValues[piece.databaseId!] = value;
             return newValues;
         });
@@ -185,7 +200,8 @@ export default function SetMyBrick({
     }, [sendActive]);
 
     const keyPressedOnPieceHandler = useCallback((piece: LegoPiece) => (event: KeyboardEvent<HTMLDivElement>) => {
-        if (event.key === "Enter") {
+        event.preventDefault();
+        if (event.key === "Enter" || event.key === "Tab") {
             sendPersonalQuantity(piece.databaseId!, values[piece.databaseId!]!);
 
             moveToNextNumber(event.target as HTMLInputElement);
@@ -194,7 +210,7 @@ export default function SetMyBrick({
 
     const editValueButtonHandler = useCallback((piece: LegoPiece) => () => {
         setValues((values) => {
-            const newValues = [...values];
+            const newValues = { ...values };
             newValues[piece.databaseId!] = undefined;
             return newValues;
         });
@@ -206,8 +222,8 @@ export default function SetMyBrick({
 
     const closeHandler = useCallback(() => {
         closeWS();
-        onClose();
-    }, [closeWS, onClose]);
+        setCloseCalled(true);
+    }, [closeWS]);
 
     return (
         <Dialog fullWidth maxWidth="md" sx={{ "& .MuiDialog-paper": { height: "60%" } }} open={legoSet !== undefined}>
@@ -298,7 +314,7 @@ export default function SetMyBrick({
                                                         autoComplete="off"
                                                         value={values[piece.databaseId!]}
                                                         onValueChange={insertTextHandler(piece)}
-                                                        onKeyUp={keyPressedOnPieceHandler(piece)}
+                                                        onKeyDown={keyPressedOnPieceHandler(piece)}
                                                         onFocus={focusOnPiece(piece)}
                                                         disabled={piece.databaseId != activePieceId && (values[piece.databaseId!] !== undefined || (activePieceOnOtherDevice.find(id => id === piece.databaseId) !== undefined))} />
                                                     <Button

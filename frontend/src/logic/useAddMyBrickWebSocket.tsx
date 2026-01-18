@@ -3,6 +3,8 @@ import createWebSocket from "@/utilities/webSocket";
 import { useSnackbar } from "notistack";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+type WebSocketState = "INIT" | "CONNECT" | "CLOSE" | "ERROR";
+
 export interface SetPieceQuantityHave {
     pieceId: number,
     quantityHave: number,
@@ -10,6 +12,7 @@ export interface SetPieceQuantityHave {
 
 export function useAddMyBrickWS() {
     const websocket = useRef<WebSocket | null>(null);
+    const [state, setState] = useState<WebSocketState>("INIT");
     const [loading, setLoading] = useState<boolean>(false);
     const [sendText, setSendTest] = useState<string>("");
     const [piecesQuantityHave, setPiecesQuantityHave] = useState<SetPieceQuantityHave[] | null>(null);
@@ -68,6 +71,14 @@ export function useAddMyBrickWS() {
             console.log("Web socket run");
             setSendTest("");
             setLoading(true);
+
+            websocket.current.onopen = () => {
+                setState("CONNECT");
+            }
+
+            websocket.current.onerror = () => {
+                setState("ERROR");
+            }
 
             websocket.current.onmessage = (message) => {
                 const rowData: string = message.data;
@@ -132,12 +143,15 @@ export function useAddMyBrickWS() {
 
             websocket.current.onclose = () => {
                 console.log("Socket closed");
+
+                setState("CLOSE");
             };
         }, [enqueueSnackbar]),
         close: useCallback(() => {
             websocket.current?.close();
         }, []),
         loading,
+        state,
         selectedPieceId,
         piecesQuantityHave,
         sendActive,
