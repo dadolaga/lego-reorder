@@ -70,11 +70,11 @@ export default function Home() {
             <LegoSetDialog legoSet={legoSetInfo} onClose={() => setLegoSetInfo(undefined)} />
             <Typography variant="h1" color="primary" align="center">Lego Reorder</Typography>
             <Typography variant="h4" color="secondary" align="center">Ecco la tua collezione lego</Typography>
-            <Paper sx={{ width: "100%", height: "100%", p: 2, boxSizing: "border-box", display: "flex", flexDirection: "column", gap: 2 }}>
+            <Paper sx={{ width: "100%", height: "100%", p: 2, boxSizing: "border-box", display: "flex", flexDirection: "column", gap: 2, overflow: "auto"}}>
                 <Box display="flex" justifyContent="end">
                     <Button variant="contained" onClick={clickAddNewLegoSetHandler}>Aggiungi set</Button>
                 </Box>
-                <Box>
+                <Box overflow="auto" padding="0 1em">
                     <Grid container spacing={1.5}>
                         {legoSets.map(set => (
                             <Grid key={set.databaseId} size={{ lg: 3, md: 4, sm: 6, xs: 12 }}>
