@@ -276,7 +276,11 @@ export default function SetMyBrick({
                                                 <Chip sx={{ backgroundColor: `#${toHex(piece.color?.value, 6)}`, "& span": { color: getTextColorFromBackground(piece.color!.value!) } }} label={piece.color?.name} ></Chip>
                                             </TableCell>
                                             <TableCell>
-                                                <Typography sx={{ fontSize: 48, fontWeight: "bold", textAlign: "center" }}>{piece.quantity}{piece.quantitySpare && <Typography component='span' sx={{fontSize: 24}}> + {piece.quantitySpare}</Typography>}</Typography>
+                                                <Typography sx={{ fontSize: 48, fontWeight: "bold", textAlign: "center" }}>
+                                                    {piece.quantity}
+                                                    {(piece.quantitySpare !== undefined && piece.quantitySpare !== null && piece.quantitySpare > 0) &&
+                                                        (<Typography component='span' sx={{ fontSize: 24 }}> + {piece.quantitySpare}</Typography>)}
+                                                </Typography>
                                             </TableCell>
                                             <TableCell>
                                                 <Box display="flex" flexDirection="column" gap={2}>
